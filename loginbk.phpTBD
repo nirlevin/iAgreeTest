@@ -1,0 +1,572 @@
+<?php
+	session_start();
+	
+	$login_redirect = NULL;
+	if($_REQUEST['location'] != '') {
+		$login_redirect = $_REQUEST['location'];
+	}
+	
+	include('services.php');
+	include('global_defs.php');
+	include('site-login/services.php');
+	
+	include('google-login/api_defs.php');  
+	include('google-login/services.php');  
+
+	//Include Google API files
+	set_include_path(get_include_path() . PATH_SEPARATOR . __DIR__ . '/google-api-php-client-master/src');
+	require_once(__DIR__ . '/google-api-php-client-master/src' . '/Google/autoload.php');  
+
+	$gClient = new Google_Client();
+	$gClient->setClientId(GOOGLE_CLIENT_ID);
+	$gClient->setClientSecret(GOOGLE_CLIENT_SECRET);
+	$gClient->setRedirectUri(GOOGLE_REDIRECT_URI);
+	$gClient->setScopes(Google_Service_Plus::USERINFO_EMAIL);
+
+	/************************************************
+	  When we create the service here, we pass the
+	  client to it. The client then queries the service
+	  for the required scopes, and uses that when
+	  generating the authentication URL later.
+	 ************************************************/
+	$plus = new Google_Service_Plus($gClient);
+
+	/************************************************
+	  Boilerplate auth management.
+	  If we're logging out we just need to clear our
+	  local access token in this case
+	 ************************************************/
+	if (isset($_REQUEST['logout'])) {
+		unset($_SESSION['access_token']);
+		$redirect = 'http://' . $_SERVER['HTTP_HOST'] . $_SERVER['PHP_SELF'];
+		header('Location: ' . filter_var($redirect, FILTER_SANITIZE_URL));
+	}
+
+	/************************************************
+	  If we have a code back from the OAuth 2.0 flow,
+	  we need to exchange that with the authenticate()
+	  function. We store the resultant access token
+	  bundle in the session, and redirect to ourself.
+	 ************************************************/
+	if (isset($_GET['code'])) { 
+		$gClient->authenticate($_GET['code']);
+		$_SESSION['access_token'] = $gClient->getAccessToken();
+		$redirect = 'http://' . $_SERVER['HTTP_HOST'] . $_SERVER['PHP_SELF'];
+		header('Location: ' . filter_var($redirect, FILTER_SANITIZE_URL));
+	}
+
+	/************************************************
+	  If we have an access token, we can make
+	  requests, else we generate an authentication URL.
+	 ************************************************/
+	if (isset($_SESSION['access_token']) && $_SESSION['access_token']) { 
+		$gClient->setAccessToken($_SESSION['access_token']);
+	} else {
+		$authUrl = $gClient->createAuthUrl();
+	}
+
+	/************************************************
+	  If we're signed in get the logged-in user details.
+	  Note that we re-store the access_token bundle,
+	  just in case anything changed during the request
+	  - the main thing that might happen here is the
+	  access token itself is refreshed if the
+	  application has off-line access.
+	 ************************************************/
+	if ($gClient->getAccessToken()) {
+		//Authenticate the ID token without a network call
+		$token_data = $gClient->verifyIdToken()->getAttributes();
+		$user_id = $token_data['payload']['sub']; // user ID
+		 
+		$user 				= $plus->people->get('me');
+		$user_name 			= htmlspecialchars($user['displayName']);
+		$email 				= filter_var($user->emails[0]->value, FILTER_SANITIZE_EMAIL);
+		$profile_url 		= filter_var($user['url'], FILTER_VALIDATE_URL);
+		$profile_image_url 	= explode("?", filter_var($user['image']['url'], FILTER_VALIDATE_URL))[0];
+		
+		//Add this user to our MySQL database, if doesn't exist
+		if(!googleLogin_doesUserExist($user_id)) {
+			googleLogin_addUser($user_id, $user_name, $email, $profile_url, $profile_image_url);
+		}
+		
+		//Set session
+		$_SESSION['user'] = array (
+			'id' => $user_id,
+			'name' => $user_name,
+			'email' => $email,
+			'gplus_url' => $profile_url,
+			'profile_image_url' => $profile_image_url
+		);
+		
+		//List all user details
+		/*
+		echo '<pre>'; 
+		print_r($user);
+		echo '</pre>';	
+		*/
+
+		$_SESSION['access_token'] 	= $gClient->getAccessToken();  
+
+		header('Location: ' . (isset($login_redirect) ? $login_redirect : DEFAULT_LOGIN_REDIRECTION_PAGE));		
+	}
+	
+	
+	/**********************************/
+	/*           LOGIN FORM           */
+	/**********************************/
+	
+	if (isset($_POST['form-submitted'])) {
+		
+		$email = basicParse($_POST['email']);
+		$password = basicParse($_POST['password']);
+		
+		$user = loginUser($email, $password, $result);
+		if (!empty($user)) { // A match was made
+		
+			$_SESSION['user'] = $user;
+			
+			header('Location: ' . (isset($login_redirect) ? $login_redirect : DEFAULT_LOGIN_REDIRECTION_PAGE));
+
+		} else {    
+		
+			$loginFail = $result;
+			
+			switch($loginFail) {
+			case -1:
+				$msg_error = 'E-mail doesn\'t exist.';
+				break;
+			case -2:
+				$msg_error = 'Your account hasn\'t been activated.';
+				break;
+			case -3:
+				$msg_error = 'The given password is incorrect.';
+				break;
+			default:
+				$msg_error = 'Unknown error occurred while trying to login.';
+				break;
+			}
+			
+		}
+	 
+	} else if (isset($_SESSION['user'])) {	
+	
+		//header('Location: ' . (isset($login_redirect) ? $login_redirect : DEFAULT_LOGIN_REDIRECTION_PAGE));
+		
+	}
+
+	
+	/**********************************/
+	/*        REGISTRATION FORM       */
+	/**********************************/
+	
+//MY	if (isset($_POST['form-submitted-reg'])) {
+	
+        $name = $_POST['my_first_name']; //else, assign it a variable
+        $email = $_POST['my_email'];
+		$password = $_POST['my_password'];
+	
+        if (doesExist($email) == false) { //if no previous user is using this email
+
+            //create a unique activation code:
+            $activation = md5(uniqid(rand(), true));
+
+            $userId = addUser($name, $email, $password, $activation);
+
+            if ($userId > 0) {
+
+				//this is the path where the activation script (activate.php) is located.
+				$activationUrl = WEBSITE_URL . 'site-login/activate.php?email=' . urlencode($email) . "&key=$activation";
+			
+				//send the confirmation e-mail
+				$mailSent = sendRegistrationConfirmationEmail($email, $name, $activationUrl);
+
+				//finish the page
+				if($mailSent) {
+					
+					$registerSuccessAlert = 1;
+					
+					header("Location: site-login/activateovrd.php?email=" . urlencode($email) . "&key=$activation");
+					
+				} else {
+					
+					$registerFailAlert = 1;
+				}
+				
+            } else { //if it did not run OK.
+               
+			   $registerFailAlert = 1;
+            }
+
+        } else { //the email address is not available.
+           
+           	$registerFail = 1;
+        }
+
+//MY    }
+    
+// End of the main Submit conditional.
+
+?><!DOCTYPE html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<meta name="viewport" content="width=device-width, user-scalable=1, initial-scale=1">
+	<title>iAgree.co.il | כניסת משתמש</title>
+    <link href="style2.css" rel="stylesheet" type="text/css">
+    <!-- Tablet -->
+    <link href="mobile2.css" rel="stylesheet" type="text/css" media="only screen and (min-width:0px) and (max-width:768px)">
+    <!-- Desktop -->
+    <link href="style2.css" rel="stylesheet" type="text/css" media="only screen and (min-width:769px)">
+
+</head>
+<body oncontextmenu="return false;">
+
+<div class="registerBlock">
+
+	<div class="registerInner">
+    
+    	<div class="registerBox" id="registerSuccessAlert">
+        
+        	<img src="img/IAgreeLogoSmall.png">
+            <h1>נרשמת לאתר iAgree בהצלחה!</h1>
+            <h2>מיד תישלח אליך בקשה לאישור ההרשמה</h2>
+            <h2>לאחר האישור תוכל להיכנס לאתר באמצעות הדוא"ל והסיסמה</h2>
+            <a onClick="$('.registerBlock').fadeOut()">אשר</a>
+        
+        </div><!--registerBox-->
+        
+        <div class="registerBox" id="registerFailAlert">
+        
+        	<img src="img/IAgreeLogoSmall.png">
+            <h1>תהליך ההרשמה נכשל</h1>
+            <h2>אנא נסה שנית</h2>
+            <a onClick="$('.registerBlock').fadeOut()">אשר</a>
+        
+        </div><!--registerBox-->
+    
+    </div><!--registerInner-->
+
+</div><!--registerBlock-->
+
+
+<section id="section1">
+	
+	<?php include 'nav.php';?>
+
+</section><!--section1-->
+
+<section id="section2">
+
+	<div class="wrapper loginBox" id="contentPage">
+    
+    <div class="loginRight">
+
+    
+        <h1>כניסת משתמש</h1>
+        
+        <h2>אנא הזן כתובת דוא"ל וסיסמה</h2>
+        
+        <form id="loginForm" method="post">
+                        
+                    <div class="rightLineBlock">
+                                
+                        <div class="contractInput" id="email">
+                    
+                        <h3>דוא"ל:</h3>
+                        <input class="newInput" type="text" id="email" name="email" value="<?=$_POST['email']?>" /> 
+                        <img src="img/iAgree_alert.png">    
+                    
+                        </div><!--email-->
+                        <p class="loginFail" id="loginFail1">כתובת הדוא"ל אינה קיימת במערכת</p>
+                        
+                    </div><!--rightLineBlock#1-->
+                    
+                    <div class="rightLineBlock">
+                    
+                        <div class="contractInput" id="password">
+                            
+                            <h3>סיסמה:</h3>
+                            <input class="newInput" type="password" id="password" name="password"/>
+                            <img src="img/iAgree_alert.png">     
+                        
+                        </div><!--password-->
+						<p class="loginFail" id="loginFail2">טרם בוצעה הפעלת החשבון</p>
+                        <p class="loginFail" id="loginFail3">אין התאמה בין הדוא"ל לסיסמה</p>
+                        
+                    </div><!--rightLineBlock#2-->
+                    
+                    <div class="rightLineBlock">
+                                                        
+                        <div class="contactSubimt">
+                        
+                            <input type="hidden" name="form-submitted" value="true" />
+                            
+                            <p onClick="validateLogin(lFrm);">כניסה</p>
+                            
+                            <a href="site-login/password_recovery.php">שכחת סיסמה?</a>
+                            
+                        </div><!--contactSubimt-->
+                                                                        
+                    </div><!--rightLineBlock#2-->
+                    
+                </form>
+                
+                <div class="rightLineBlock" id="googlePlus">
+                                                    
+                    <?php if(isset($authUrl)) { //user is not logged-in, show login link ?>
+                
+                    <p>OR</p>
+                    
+                    <a href="<?=$authUrl?>"><img src="img/gSign.png"></a>
+                    
+                    <?php } ?>
+                                                                    
+                </div><!--rightLineBlock#5-->
+                
+           	</div><!--loginRight-->
+           
+           
+           	<div class="loginLeft">
+           
+           		<h1>הרשם</h1>
+                
+                <h2>אנא מלא את הפרטים הבאים</h2>
+                
+                <form id="registerForm" method="post">
+                        
+                    <div class="rightLineBlock">
+                                
+                        <div class="contractInput" id="name">
+                    
+                        <h3>שם</h3>
+                        <input class="newInput" type="text" id="name" name="name" value="<?=$_POST['name']?>" />
+                        <img src="img/iAgree_alert.png">   
+                    
+                        </div><!--name-->
+                        
+                    </div><!--rightLineBlock#1-->
+                    
+                    <div class="rightLineBlock">
+                                
+                        <div class="contractInput" id="email">
+                    
+                        <h3>דוא"ל:</h3>
+                        <input class="newInput" type="text" id="email" name="email" value="<?=$_POST['email']?>" /> 
+                        <img src="img/iAgree_alert.png">
+                        <p id="registerFail">כתובת הדוא"ל כבר קיימת במערכת</p>     
+                    
+                        </div><!--email-->
+                        
+                    </div><!--rightLineBlock#1-->
+                    
+                    <div class="rightLineBlock">
+                    
+                        <div class="contractInput" id="password">
+                            
+                            <h3>בחר סיסמה:</h3>
+                            <input class="newInput newInputM" type="password" id="password" name="password" placeholder="6 תווים לפחות"/>     
+                            <img src="img/iAgree_alert.png">
+                        
+                        </div><!--password-->
+                        
+                    </div><!--rightLineBlock#2-->
+                    
+                    <div class="rightLineBlock">
+                                                        
+                        <div class="contactSubimt">
+                        
+                            <input type="hidden" name="form-submitted-reg" value="true" />
+                            
+                            <p onClick="validateRegister(rFrm);">הרשם</p>
+                            
+                            
+                            
+                        </div><!--contactSubimt-->
+                                                                        
+                    </div><!--rightLineBlock#2-->
+                    
+                </form>
+           
+           	</div>
+            
+    
+		</div><!--wrapper-->
+
+</section><!--section2-->
+
+<section id="section3">
+
+	<?php include 'footer.php';?>
+
+</section><!--section3-->
+	
+
+<script type="text/javascript" src="js/jquery-2.1.0.min.js"></script>
+<script type="text/javascript" src="js/jquery-ui.min.js"></script>
+
+<script>
+
+/*****************************************************************
+*    					General variables    					 *
+*****************************************************************/
+
+	var h = $(window).height();
+	var mql = window.matchMedia("screen and (min-width:769px)");
+	var lFrm = document.getElementById("loginForm");
+	var rFrm = document.getElementById("registerForm");
+	
+
+/*****************************************************************
+*    					Font size function    					 *
+*****************************************************************/
+	
+function fontSize(){
+
+	var w = $(window).width();
+	var a = w/160;
+	var b = h/77;
+	if (w<1200){
+	//	$('.container').css('max-width','100%');
+		}
+	if (w/h > 2){$('body').css('font-size',a+'px');}
+	else		{$('body').css('font-size',b+'px');}
+}
+
+
+/*****************************************************************
+*    							user	    					 *
+*****************************************************************/
+
+
+function user(){
+	if ("<?=isset($user)?>"){
+		$('#userLogin').hide();
+		$('#userLogout').show();
+		$('#userLogout').css('display','table-cell');
+		
+		if("<?=isset($user['gplus_url']) ?>"){
+			$('.gplus').show();
+			}
+		
+		} else {
+			$('#userLogin').show();
+			$('#userLogin').css('display','table-cell');
+			$('#userLogout').hide();
+			}
+}
+
+
+
+/*****************************************************************
+*    					Validate Forms    					 *
+*****************************************************************/
+
+function validateLogin(frm){
+	
+	var a=0;
+	$('.contractInput img').css('display','none');
+	$('.loginFail').hide();
+	$('#registerFail').hide();
+		
+	if (frm.password.value.length == 0) {
+		frm.password.focus();
+		$('#loginForm #password img').fadeIn();
+		a=1;}
+		
+	if (!ValidateEmail(frm.email.value)) {
+		frm.email.focus();
+		$(frm.email).removeClass('selected');
+		$('#loginForm #email img').fadeIn();
+		a=1;}
+		
+	if (a==1) {reutrn(0);}			
+
+	frm.submit(); }
+	
+
+function validateRegister(frm){
+	
+	var a=0;
+	$('.contractInput img').css('display','none');
+	$('.loginFail').hide();
+	$('#registerFail').hide();
+		
+	if (frm.password.value.length < 6) {
+		frm.password.focus();
+		$('#registerForm #password img').fadeIn();
+		a=1;}
+		
+	if (!ValidateEmail(frm.email.value)) {
+		frm.email.focus();
+		$(frm.email).removeClass('selected');
+		$('#registerForm #email img').fadeIn();
+		a=1;}
+		
+	if (frm.name.value.length == 0) {
+		frm.name.focus();
+		$('#registerForm #name img').fadeIn();
+		a=1;}
+		
+	if (a==1) {reutrn(0);}
+
+	frm.submit(); }
+
+
+function ValidateEmail(x) {
+
+	var a=0;
+	var atpos=x.indexOf("@");
+	var dotpos=x.lastIndexOf(".");
+	if (x.length==0) {
+		a=1;}
+		else if (atpos<1 || dotpos<atpos+2 || dotpos+2>=x.length) {
+			 a=1;}
+	if (a==1) {return false;}
+
+return 1; }
+
+function alerts(){
+	<? if($loginFail==-1){ ?> $('#loginFail1').fadeIn(); <? } ?>
+	<? if($loginFail==-2){ ?> $('#loginFail2').fadeIn(); <? } ?>
+	<? if($loginFail==-3){ ?> $('#loginFail3').fadeIn(); <? } ?>
+	
+	<? if($registerFail){ ?> $('#registerFail').fadeIn(); <? } ?>
+	<? if($registerSuccessAlert){ ?> 
+		$('.registerBlock').css('display','table');
+		$('#registerSuccessAlert').fadeIn();
+		 <? } ?>
+	<? if($registerFailAlert){ ?> 
+		$('.registerBlock').css('display','table');
+		$('#registerFailAlert').fadeIn();
+		 <? } ?>
+
+}
+
+	
+
+/*****************************************************************
+*    					Ready functions	    					 *
+*****************************************************************/
+	
+$(document).ready(function() {
+	
+//	alert("<?=$_SESSION['last_page']?>");
+	
+	fontSize();
+	user();
+	alerts();
+	
+});
+
+	
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-65350205-1', 'auto');
+  ga('send', 'pageview');	
+	
+</script>
+	  	
+</body>
+</html>

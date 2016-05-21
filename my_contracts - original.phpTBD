@@ -1,0 +1,519 @@
+<?php
+    session_start();
+	
+    if(isset($_SESSION['user'])) {
+		$user = $_SESSION['user'];
+    } else {
+		header('Location: login.php?location=' . urlencode($_SERVER['REQUEST_URI']));
+	}
+	
+	include("services.php");
+	
+	/* Send the contract to all parties */
+	if(isset($_POST['remind'], $_POST['rid'])) {
+
+		$rid = basicParse($_POST['rid']);
+		$contractId = getContractIdByRandomId($rid);
+		$contract = getContractById($contractId);
+
+		if(isset($user) && isset($contract)) {
+			$partiesArray = getPartiesByContractId($contract['id']);
+			
+			/* Prepare a list of emails of all recipients */
+			foreach($partiesArray as $party) {
+				$partiesEmails[] = $party['email'];
+			}
+			
+			/* Send the contract to all parties while identified as the logged-in user */
+			$reminderMailSent = sendContractToParties($user, $contract, $partiesEmails);
+		}
+		
+	}
+	
+?><!DOCTYPE html>
+<html>
+<head>
+<meta charset='UTF-8'>
+<meta name="viewport" content="width=device-width, user-scalable=1, initial-scale=1">
+<title>iAgree.co.il | החוזים שלי</title>
+<link href="style2.css" rel="stylesheet" type="text/css">
+<!-- Tablet -->
+<link href="mobile2.css" rel="stylesheet" type="text/css" media="only screen and (min-width:0px) and (max-width:768px)">
+<!-- Desktop -->
+<link href="style2.css" rel="stylesheet" type="text/css" media="only screen and (min-width:769px)">
+</head>
+
+<body oncontextmenu="return false;">
+
+<section id="section1">
+	
+	<?php include 'nav.php';?>
+
+</section><!--section1-->
+
+<section id="section2">
+
+	<div class="wrapper" id="contentPage">
+    
+			<h1>החוזים שלי</h1>
+
+			<?php
+			
+				/* Retrieve all contracts related to the logged-in user */
+				if($partiesArray = getPartiesByEmail($user['email'])) {
+					foreach ($partiesArray as $party) {
+						$contract = getContractById($party['contract_id']);
+						$thisContractPartiesArray = getPartiesByContractId($party['contract_id']);
+						
+						if($thisContractPartiesArray != null && $contract != null) {
+
+							/* Check if all parties have agreed on the contract */
+							$allPartiesAgreed = true;
+							foreach($thisContractPartiesArray as $p) {
+								$allPartiesAgreed = ($allPartiesAgreed & $p['agreed']);
+							}
+		
+							foreach($thisContractPartiesArray as $p) {
+								$contract[$p['role']][] = $p;
+							}
+
+							$contractSentToHelloSign = (!empty($contract['hellosign_guid']));
+							
+			?>
+		
+            <div class="contractEntry">
+            
+            	<div class="myContractsTable" id="myContractsTableHeader">
+            
+                    <div class="myContractsCell myContractsCellSmall" id="contractId">
+                    
+                        <p>ID</p>
+                    
+                    </div><!--myContractsCell-->
+                    
+                    <div class="myContractsCell" id="contractAddress">
+                    
+                        <p>כתובת</p>
+                    
+                    </div><!--myContractsCell-->
+                    
+                    <div class="myContractsCell" id="owner">
+                    
+                        <p>יוצר החוזה</p>
+                    
+                    </div><!--myContractsCell-->
+                    
+                    <div class="myContractsCell" id="actions">
+                    
+                    	<p>פעולות</p>
+                    
+                    </div><!--myContractsCell-->
+                
+                    
+            	</div><!--myContractsTable-->
+                
+                
+                
+                <div class="myContractsTable">
+            
+                    <div class="myContractsCell myContractsCellSmall" id="contractId">
+                    
+                        <p><?=$contract['id']?></p>
+                    
+                    </div><!--myContractsCell-->
+                    
+                    <div class="myContractsCell" id="contractAddress">
+                    
+                        <p><?=($contract['street'] . ' ' . $contract['building'] . " דירה " . $contract['apartment'] . ", " . $contract['city'])?></p>
+                    
+                    </div><!--myContractsCell-->
+                    
+                    <div class="myContractsCell" id="owner">
+                    
+                        <p>
+						<?php
+							$contractCreator = getContractCreator($contract['id']);
+							echo $contractCreator['first_name'] . " " . $contractCreator['last_name'];
+						?>
+						</p>
+                    
+                    </div><!--myContractsCell-->
+                    
+                    <div class="myContractsCell" id="actions">
+
+                        <a id="viewContract" href="view_contract.php?rid=<?=$contract['rid']?>">צפה בחוזה</a>
+						
+						<?php
+							if(($party['can_edit'] == true) && ($contractSentToHelloSign == false)) {
+						?>
+								<a id="reviewContract" href="edit_contract.php?rid=<?=$contract['rid']?>">ערוך</a>
+                                
+								<?php if($allPartiesAgreed == false) { ?>
+								
+									<a id="sendMemo" onClick="sendMemo(<?=$contract['id']?>)">שלח תזכורת</a>
+									<img id="memoImg" src="img/iAgree_ok.png">
+									<form id="memoForm<?=$contract['id']?>" method="post">
+										<input type="hidden" name="remind">
+										<input type="hidden" name="rid" value="<?=$contract['rid']?>">
+									</form>
+									
+								<?php } else { ?>
+								
+									<a id="sendToHelloSignLink" onClick="sendToHelloSign(<?=$contract['id']?>)">שלח לחתימה</a>
+									<form id="signForm<?=$contract['id']?>" method="post" action="contract_sign.php">
+										<input type="hidden" name="sign">
+										<input type="hidden" name="rid" value="<?=$contract['rid']?>">
+									</form>
+									
+								<?php } ?>
+						<?php
+							}
+						?>
+						
+						<?php
+							if($contractSentToHelloSign == true) {
+						?>
+							<a id="sentToHelloSign">נשלח לחתימה</a>
+						<?php
+							}
+						?>
+						
+                    </div><!--myContractsCell-->
+                
+                    
+            	</div><!--myContractsTable-->
+    			
+                
+                <div class="myContractsTable" id="myContractsTableHeader2">
+                
+                    <div class="myContractsCell myContractsCellParty" id="contractParty1"><p>משכיר</p></div>
+					<div class="myContractsCell myContractsCellTiny" id="party1Read">
+						<p>אישר</p>
+						<p>חתם</p>
+					</div>
+                    
+				<?php
+					$i = 1;
+					foreach($contract['tenant'] as $tenant) {
+				?>
+                    <div class="myContractsCell myContractsCellParty" id="contractParty<?=($i+1)?>"><p>שוכר <?=$i?></p></div>
+                    <div class="myContractsCell myContractsCellTiny" id="party<?=($i+1)?>Read">
+                        <p>אישר</p>
+                        <p>חתם</p>
+                    </div>
+                <?php
+						$i++;
+					}
+				?>
+                    
+				</div><!--myContractsTable-->
+                        
+            
+				<div class="myContractsTable">
+				
+					<?php
+						$landlord = $contract['landlord'][0];
+						if(!empty($landlord['first_name'])) {
+							$name = $landlord['first_name'] . " " . $landlord['last_name'];
+						} else {
+							$name = $landlord['email'];
+						}
+					?>
+				
+					<div class="myContractsCell myContractsCellParty" id="contractParty1"><p><?=$name?></p></div>
+					<div class="myContractsCell myContractsCellTiny" id="party1Read">
+						<p><img src="img/<?=(($landlord['agreed'] == 1) ? 'iAgree_ok.png' : 'iAgree_hourglass.png')?>" alt="iAgree חוזה שכירות הוגן"></p>
+						<p><img src="img/<?=(($landlord['signed'] == 1) ? 'iAgree_ok.png' : 'iAgree_hourglass.png')?>" alt="iAgree חוזה שכירות סטנדרטי"></p>
+					</div>
+						
+				<?php
+					$i = 1;
+					foreach($contract['tenant'] as $tenant) {
+						if(!empty($tenant['first_name'])) {
+							$name = $tenant['first_name'] . " " . $tenant['last_name'];
+						} else {
+							$name = $tenant['email'];
+						}
+				?>
+						<div class="myContractsCell myContractsCellParty" id="contractParty<?=($i+1)?>"><p><?=$name?></p></div>
+						<div class="myContractsCell myContractsCellTiny" id="party<?=($i+1)?>Read">
+							<p><img src="img/<?=($tenant['agreed'] == 1 ? 'iAgree_ok.png' : 'iAgree_hourglass.png')?>" alt="iAgree חוזה שכירות הוגן"></p>
+							<p><img src="img/<?=($tenant['signed'] == 1 ? 'iAgree_ok.png' : 'iAgree_hourglass.png')?>" alt="iAgree חוזה שכירות סטנדרטי"></p>
+						</div>
+				<?php
+						$i++;
+					}
+					
+				?>
+				</div><!--myContractsTable-->
+            
+            
+            </div><!--contractEntry-->
+			
+			<br/>
+			
+			<?php
+			
+						}
+					}
+				}
+				
+			?>            
+            
+<script>/*
+            
+            <div class="myContractsTable" id="myContractsTableHeader">
+            
+            	<div class="myContractsCellSmall" id="contractId">
+                
+                	<p>ID</p>
+                
+                </div><!--myContractsCell-->
+                
+                <div class="myContractsCell" id="contractStreet">
+                
+                	<p>רחוב</p>
+                
+                </div><!--myContractsCell-->
+                
+                <div class="myContractsCell" id="contractCity">
+                
+                	<p>עיר</p>
+                    
+                </div><!--myContractsCell-->
+                
+                <div class="myContractsCell" id="contractParty1">
+                
+                	<p>משכיר</p>
+                
+                </div><!--myContractsCell-->
+                
+                	<div class="myContractsCellSmall" id="party1Read">
+                    
+                    	<p>אישר</p>
+                        <p>חתם</p>
+                        
+                    </div><!--myContractsCell-->
+                
+                <div class="myContractsCell" id="contractParty2">
+                
+                	<p>שוכר1</p>
+                
+                </div><!--myContractsCell-->
+                
+                	<div class="myContractsCellSmall" id="party2Read">
+                    
+                    	<p>אישר</p>
+                        <p>חתם</p>
+                        
+                    </div><!--myContractsCell-->
+                                    
+                <div class="myContractsCell" id="contractParty3">
+                
+                	<p>שוכר2</p>
+                
+                </div><!--myContractsCell-->
+                
+                	<div class="myContractsCellSmall" id="party3Read">
+                    
+                    	<p>אישר</p>
+                        <p>חתם</p>
+                        
+                    </div><!--myContractsCell-->
+                                    
+                <div class="myContractsCell" id="contractParty4">
+                
+                	<p>שוכר3</p>
+                
+                </div><!--myContractsCell-->
+                
+                	<div class="myContractsCellSmall" id="party4Read">
+                    
+                    	<p>אישר</p>
+                        <p>חתם</p>
+                        
+                    </div><!--myContractsCell-->
+                    
+            </div><!--myContractsTable-->
+            
+            <a href="xxx.html">
+            
+            <div class="myContractsTable">
+            
+            	<div class="myContractsCellSmall" id="contractId">
+                
+                	<p>ID</p>
+                
+                </div><!--myContractsCell-->
+                
+                <div class="myContractsCell" id="contractStreet">
+                
+                	<p>רחוב</p>
+                
+                </div><!--myContractsCell-->
+                
+                <div class="myContractsCell" id="contractCity">
+                
+                	<p>עיר</p>
+                    
+                </div><!--myContractsCell-->
+                
+                <div class="myContractsCell" id="contractParty1">
+                
+                	<p>משכיר</p>
+                
+                </div><!--myContractsCell-->
+                
+                	<div class="myContractsCellSmall" id="party1Read">
+                    
+                    	<p>אישר</p>
+                        <p>חתם</p>
+                        
+                    </div><!--myContractsCell-->
+                
+                <div class="myContractsCell" id="contractParty2">
+                
+                	<p>שוכר1</p>
+                
+                </div><!--myContractsCell-->
+                
+                	<div class="myContractsCellSmall" id="party2Read">
+                    
+                    	<p>אישר</p>
+                        <p>חתם</p>
+                        
+                    </div><!--myContractsCell-->
+                                    
+                <div class="myContractsCell" id="contractParty3">
+                
+                	<p>שוכר2</p>
+                
+                </div><!--myContractsCell-->
+                
+                	<div class="myContractsCellSmall" id="party3Read">
+                    
+                    	<p>אישר</p>
+                        <p>חתם</p>
+                        
+                    </div><!--myContractsCell-->
+                                    
+                <div class="myContractsCell" id="contractParty4">
+                
+                	<p>שוכר3</p>
+                
+                </div><!--myContractsCell-->
+                
+                	<div class="myContractsCellSmall" id="party4Read">
+                    
+                    	<p>אישר</p>
+                        <p>חתם</p>
+                        
+                    </div><!--myContractsCell-->
+                    
+            </div><!--myContractsTable-->
+            
+            </a>
+			
+*/</script>
+
+
+    
+		</div><!--wrapper-->
+
+</section><!--section2-->
+
+<section id="section3">
+
+	<!--#include virtual="footer.html" -->
+
+</section><!--section3-->
+	
+
+<script type="text/javascript" src="js/jquery-2.1.0.min.js"></script>
+<script type="text/javascript" src="js/jquery-ui.min.js"></script>
+
+<script>
+
+/*****************************************************************
+*    					General variables    					 *
+*****************************************************************/
+
+	var h = $(window).height();
+	var j = 0;
+	var i = 0;
+	var mql = window.matchMedia("screen and (min-width:769px)");
+	
+
+/*****************************************************************
+*    					Font size function    					 *
+*****************************************************************/
+	
+function fontSize(){
+
+	var w = $(window).width();
+	var a = w/160;
+	var b = h/77;
+	if (w<1200){
+	//	$('.container').css('max-width','100%');
+		}
+	if (w/h > 2){$('body').css('font-size',a+'px');}
+	else		{$('body').css('font-size',b+'px');}
+}
+	
+
+/*****************************************************************
+*    							user	    					 *
+*****************************************************************/
+
+
+function user(){
+	if ("<?=isset($user)?>"){
+		$('#userLogin').hide();
+		$('#userLogout').show();
+		$('#userLogout').css('display','table-cell');
+		
+		if("<?=isset($user['gplus_url']) ?>"){
+			$('.gplus').show();
+			}
+		
+		} else {
+			$('#userLogin').show();
+			$('#userLogin').css('display','table-cell');
+			$('#userLogout').hide();
+			}
+}
+	
+
+/*****************************************************************
+*    					Ready functions	    					 *
+*****************************************************************/
+	
+$(document).ready(function() {
+	fontSize();
+	user();
+	
+	if (<?=(isset($reminderMailSent) ? $reminderMailSent : 0)?>){
+		$('#memoImg').css('display','inline');
+	}
+});
+
+function sendMemo(contract_id){
+	$('#memoForm' + contract_id).submit();
+}
+	
+function sendToHelloSign(contract_id){
+	$('#signForm' + contract_id).submit();
+}
+		
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-65350205-1', 'auto');
+ga('send', 'pageview');	
+	
+</script>
+	
+</body>
+</html>

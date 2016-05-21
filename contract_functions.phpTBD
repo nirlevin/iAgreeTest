@@ -1,0 +1,99 @@
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<?php
+
+$contract['role'] = "landlord";
+$contract['rooms'] = "A";
+$contract['city'] = "B";
+$contract['street'] = "C";
+$contract['building'] = "D";
+$contract['apartment'] = "E";
+$contract['contents'] = "FFF";
+$contract['acTxt'] = "מזגן ".$contract['acTxt'];
+$contract['microTxt'] = null;
+$contract['washerTxt'] = null;
+$contract['freezerTxt'] = "מקרר אמנה";
+$contract['ovenTxt'] = null;
+$contract['tvTxt'] = "";
+$contract['animals'] = "no";
+$contract['repairs'] = "G";
+$contract['defects'] = "H";
+$contract['fee'] = "2100";
+$contract['billing_day'] = "I";
+$contract['start_date'] = "J";
+$contract['end_date'] = "K";
+$contract['optional_extension'] = "yes";
+$contract['collaterals'] = "פיקדון בסך דמי השכירות עבור חודש שכירות אחד.";
+$contract['my_first_name'] = "first_name";
+$contract['my_last_name'] = "last_name";
+$contract['full_name'] = $contract['my_first_name']. " " .$contract['my_last_name'];
+$contract['my_identity_number'] = "my_identity_number";
+$contract['my_phone'] = "my_phone";
+$contract['my_address'] = "my_address";
+
+$contract['landlord_email'] = "a@a.com";
+$contract['tenant1_email'] = "a@b.com";
+$contract['tenant2_email'] = "a@c.com";
+$contract['tenant3_email'] = "a@d.com";
+
+
+
+
+
+
+
+
+
+$contract['landlord']['full_name'] = "LA";
+$contract['landlord']['id'] = "LB";
+$contract['landlord']['full_address']= "LC";
+$contract['landlord']['phone'] = "LD";
+$contract['tenant1']['full_name'] = "T1A";
+$contract['tenant1']['id'] = "T1B";
+$contract['tenant1']['full_address'] = "T1C";
+$contract['tenant1']['phone'] = "T1D";
+$contract['tenant2']['full_name'] = "T2A";
+$contract['tenant2']['id'] = "T2B";
+$contract['tenant2']['full_address'] = "T2C";
+$contract['tenant2']['phone'] = "T2D";
+$contract['tenant3']['full_name'] = "T3A";
+$contract['tenant3']['id'] = "T3B";
+$contract['tenant3']['full_address'] = "T3C";
+$contract['tenant3']['phone'] = "T3D";
+
+
+	
+
+$contract[$contract['role']]['full_name']=$contract['full_name'];
+$contract[$contract['role']]['id']=$contract['my_identity_number'];
+$contract[$contract['role']]['full_address']=$contract['my_address'];
+$contract[$contract['role']]['phone']=$contract['my_phone'];
+
+
+
+if($contract['optional_extension']=='yes'){
+	$extention = 'השוכר רשאי להאריך את תוקף הסכם זה בשנים עשר (12) חודשים, מתאריך <span>'.$contract['end_date']. '</span> ועד לתאריך' .$extention_date. ' (להלן: "האופציה" ו"תקופת האופציה"), באמצעות הודעה בכתב למשכיר לפחות תשעים (90) ימים טרם תום תקופת השכירות, והכל בכפוף לכך שהשוכר עמד במלוא התחייבויותיו על פי הסכם זה ושהמשכיר יהיה רשאי להעלות את דמי השכירות בתקופת האופציה בלא יותר משלושה אחוזים (3%) מדמי השכירות בתקופת השכירות.';
+	$ext32 = '3.2';
+	$ext32text = 'במקרה של מימוש האופציה על ידי השוכר, יפקיד השוכר בידי המשכיר, לפחות ארבעים וחמישה (45) ימים טרם תחילת תקופת האופציה, המחאות עבור דמי השכירות החודשיים בתקופת האופציה.'; 
+	$ext33 = '3.3';
+	$ext33text = 'בתקופת האופציה יחולו על הצדדים כל הוראות הסכם זה, בשינויים המחויבים, לרבות כל הוראות ההסכם הנוגעות לתשלום דמי השכירות ותשלומים נוספים.';
+
+}else{$extention ='ללא';}
+
+
+$contents = "";
+
+if($contract['acTxt'] != null){$contents = $contents." ".$contract['acTxt']. ';';}
+if($contract['microTxt'] != null){$contents = $contents." ".$contract['microTxt']. ';';}
+if($contract['washerTxt'] != null){$contents = $contents." ".$contract['washerTxt']. ';';}
+if($contract['freezerTxt'] != null){$contents = $contents." ".$contract['freezerTxt']. ';';}
+if($contract['ovenTxt'] != null){$contents = $contents." ".$contract['ovenTxt']. ';';}
+if($contract['tvTxt'] != null){$contents = $contents." ".$contract['tvTxt']. ';';}
+
+$contents = $contents. " " .$contract['contents']; 
+
+if($contract['animals'] == "yes"){
+	$animals ="מוסכם כי השוכר יהיה רשאי להחזיק בדירה חיית מחמד, בכפוף לכך שהשוכר מאשר כי האמור בסעיף 6.3 לעיל יחול ויחייב אותו גם בכל הקשור להחזקת חיית המחמד.";
+}else{$animals ="השוכר מתחייב שלא להכניס בעלי חיים לדירה.";}
+
+
+?>

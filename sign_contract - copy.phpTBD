@@ -1,0 +1,985 @@
+<?php
+
+    session_start();
+	
+	include_once("services.php");
+	include_once("global_defs.php");
+	include_once("contracts/services.php");
+	
+    if(isset($_SESSION['user'])) {
+		$user = $_SESSION['user'];
+    }
+	
+	/* Fetch the contract object according to its ID */
+	if(isset($_GET['rid'])) {
+		$rid = basicParse($_GET['rid']);
+		$contractId = getContractIdByRandomId($rid);
+		
+		if(empty($contractId)) {
+			/* If 'rid' is invalid, redirect to homepage */
+			header('Location: index.php');
+		}
+		
+		$contract = getContractById($contractId);
+		
+		$contractAddress = $contract['street'] . ' ' . $contract['building'] . " דירה " . $contract['apartment'] . ", " . $contract['city'];
+		
+		$contractCreator = getContractCreator($contractId);
+		$contractCreator['name'] = $contractCreator['first_name'] . " " . $contractCreator['last_name'];
+	} else {
+		/* If 'rid' is not given, redirect to homepage */
+		header('Location: index.php');
+	}
+    
+	if(isset($user) && isset($contract)) {
+		$myParty = getPartyByEmailAndContractId($user['email'], $contract['id']);
+		$partiesArray = getPartiesByContractId($contract['id']);
+		
+		/* Check if all parties have agreed on the contract */
+		$allPartiesAgreed = true;
+		foreach($partiesArray as $party) {
+			$allPartiesAgreed = ($allPartiesAgreed & $party['agreed']);
+		}
+		
+		if(isset($partiesArray)) {
+
+			foreach($partiesArray as $party) {
+				$contract[$party['role']][] = $party;
+			}
+
+		}
+	
+	if (($_POST['allDetailsDone'] ==1) && ($myParty['phone'] == NULL)){
+//	if (1){
+				
+		$detailsComplete = 1;
+		
+		$partyData = array (
+				'phone' => $_POST['my_phone'], 
+				'address' => $_POST['my_address']
+			);
+		
+		 $result = updateParty($contractId, $user['email'], $partyData);
+		 
+		 header('Location: sign_contract.php?rid='.$rid);
+	}
+
+	
+}
+
+	if(isset($_GET['signed'])){
+		
+		if (!$myParty['signed']){
+		
+			$creatorData = array (
+				'signed' => 1
+			);
+			
+		$result = 0;
+		$result = updateParty($contractId, $myParty['email'], $creatorData);
+		
+		header('Location: sign_contract.php?rid='.$rid);	
+			
+		}
+	
+	}
+
+
+
+/************************  MY ***************************/
+
+function get_client_ip() {
+    $ipaddress = '';
+    if (getenv('HTTP_CLIENT_IP'))
+        $ipaddress = getenv('HTTP_CLIENT_IP');
+    else if(getenv('HTTP_X_FORWARDED_FOR'))
+        $ipaddress = getenv('HTTP_X_FORWARDED_FOR');
+    else if(getenv('HTTP_X_FORWARDED'))
+        $ipaddress = getenv('HTTP_X_FORWARDED');
+    else if(getenv('HTTP_FORWARDED_FOR'))
+        $ipaddress = getenv('HTTP_FORWARDED_FOR');
+    else if(getenv('HTTP_FORWARDED'))
+       $ipaddress = getenv('HTTP_FORWARDED');
+    else if(getenv('REMOTE_ADDR'))
+        $ipaddress = getenv('REMOTE_ADDR');
+    else
+        $ipaddress = 'UNKNOWN';
+    return $ipaddress;
+}
+
+$ip = get_client_ip();
+
+$deviceName = gethostname();
+
+?>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset='UTF-8'>
+<meta name="viewport" content="width=device-width, user-scalable=1, initial-scale=1">
+<title>iAgree.co.il | חוזה iAgree - הופכים את חווית שכירת הדירות לפשוטה ונעימה.</title>
+<link href="style2.css" rel="stylesheet" type="text/css">
+<!-- Tablet -->
+<link href="mobile2.css" rel="stylesheet" type="text/css" media="only screen and (min-width:0px) and (max-width:768px)">
+<!-- Desktop -->
+<link href="style2.css" rel="stylesheet" type="text/css" media="only screen and (min-width:769px)">
+
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+
+<link rel="stylesheet" href="example/css/signature-pad.css">
+
+<script type="text/javascript" src="js/jquery-2.1.0.min.js"></script>
+<script type="text/javascript" src="js/jquery-ui.min.js"></script>
+<script type='text/javascript' src="//wurfl.io/wurfl.js"></script>
+
+</head>
+
+<body>
+
+<div id="signature" class="popupContainer"></div><!--signature-->
+
+<div class="popupContainer">
+
+	<div class="popupBlock">
+    
+    	<div class="popupBox" id="popupBoxComments">
+        
+        	<img class="xbox" src="img/iAgree_x.png">
+            <img src="img/IAgreeLogoSmall.png">
+            <h1>שלח הערות ליוצר החוזה</h1>
+            <h2>אנא מלא הערותיך בתיבת הטקסט.</h2>
+            <h3>בלחיצת "שלח" הערותיך יישלחו ליוצר החוזה.</h3>
+            
+            <form id="commentsFrom" action="comments_sent.php" method="post">
+            <input name="owner_email" type="hidden" value="<?=$contractCreator['email']?>" />
+            <input name="who_sent" type="hidden" value="<?=$user['name']?>" />
+            <input name="who_sent_email" type="hidden" value="<?=$user['email']?>" />
+             <input name="owner_name" type="hidden" value="<?=$contractCreator['name']?>" />
+            
+            	<div class="rightLineBlock">
+                    
+                    <div class="contractInput textInput" id="comments">
+                    
+                        <h3>הודעה:</h3>
+                        <textarea name="comments" class="newInput newInputL" onChange="done(this)" rows="7" maxlength="306"></textarea>
+                        <img src="img/iAgree_alert.png">
+                        
+                    </div><!--comments-->
+                                        
+                </div><!--rightLineBlock#3-->
+            
+            </form>
+            
+            <a onClick="sendCommentsToOwner(document.getElementById('commentsFrom'))">שלח</a>
+        
+        </div><!--popupBox-->
+        
+        <div class="popupBox" id="popupBoxView1">
+        
+            <img src="img/IAgreeLogoSmall.png">
+            <h1>ברוך הבא לאתר iAgree</h1>
+            
+            <h2>ע"מ לצפות בחוזה עליך להתחבר לאתר</h2>
+            <h3></h3>
+            <h3>לאחר לחיצת אשר, תועבר לעמוד login. מיד לאחר הכניסה תחזור באופן אוטומטי לעמוד זה.</h3>            
+            
+            <a href="login.php?location=sign_contract.php?rid=<?=$rid?>">התחבר</a>
+        
+        </div><!--popupBox-->
+  
+  	
+    	<div class="popupBox" id="signSuccess">
+        
+            <img src="img/IAgreeLogoSmall.png">
+            <h1>תודה שחתמת דרכינו!</h1>
+            <h2>מיד עם חתימת כל הצדדים על החוזה<br>יישלח אליך עותק החוזה החתום במייל</h2>
+            
+            <h1><img src="img/IAgreeLogoSmall2.png"> ככה שוכרים היום דירה!</h1>
+            
+            
+            <a href="index.php">אשר</a>
+        
+        </div><!--popupBox-->
+  
+  
+        
+        
+        
+        <div class="popupBox" id="popupBoxView2">
+        
+        	<img class="xbox" src="img/iAgree_x.png">
+            <img src="img/IAgreeLogoSmall.png">
+            
+            <h2>אנא השלם את הפרטים הבאים על מנת לחתום על החוזה.</h2>
+            <h3>מיד לאחר האישור פרטיך יושלמו בחוזה באופן אוטומטי</h3>
+<!--            <h3>לאחר שכל הצדדים יאשרו את החוזה, יישלח אליך עותק חתום של החוזה בצירוף ת"ז של כל הצדדים.</h3>	-->
+            
+            <form id="frm" method="post" enctype="multipart/form-data">
+				<input type="hidden" name="contract_agreed">
+<!-- 				
+            	<div class="rightLineBlock">
+                    
+                    <div class="contractInput" id="my_first_name">
+                   
+                        <h3>שם פרטי:</h3>
+                        <input id="my_first_nameInput" name="my_first_name" class="newInput newInputM" onChange="done(this)" type="text" value="<?=$myParty["first_name"]?>"/>
+                        <img src="img/iAgree_alert.png">
+                    </div><!--my_first_name--
+                    
+                    <div class="contractInput" id="my_last_name">
+                        <h3>שם משפחה:</h3>
+                        <input id="my_last_nameInput" name="my_last_name" class="newInput newInputM" onChange="done(this)" type="text" value="<?=$myParty["last_name"]?>"/>
+                        <img src="img/iAgree_alert.png">
+                    </div><!--my_last_name--
+                    
+                    <div class="contractInput" id="my_identity_number">
+                        <h3>ת"ז:</h3>
+                        <input id="my_identity_numberInput" name="my_identity_number" class="newInput newInputM" onChange="doneID(this)" placeholder="9 ספרות" type="text" value="<?=$myParty["identity_number"]?>"/>
+                        <img src="img/iAgree_alert.png">
+                    </div><!--my_identity_number--
+                                        
+                </div><!--rightLineBlock#1-->
+
+
+                
+                
+                <div class="rightLineBlock">
+                
+                    <div class="contractInput input48" id="my_phone">
+                        <h3>טלפון:</h3>
+                        <input id="my_phoneInput" name="my_phone" class="newInput newInputMobile" onChange="done(this)" placeholder="לדוגמה: 0549328745" type="text" value="<?=isset($_POST['contract_agreed'])?$_POST['my_phone']:$myParty["phone"]?>"/>
+                        <img src="img/iAgree_alert.png">
+                    </div><!--my_phone-->
+                    
+                    <div class="contractInput input48" id="my_address">
+                        <h3>כתובת:</h3>
+                        <input id="my_addressInput" name="my_address" class="newInput newInputP" onChange="done(this)" type="text" value="<?=isset($_POST['contract_agreed'])?$_POST['my_address']:$myParty["address"]?>"/>
+                        <img src="img/iAgree_alert.png">
+                    </div><!--my_address-->
+                                        
+                </div><!--rightLineBlock#2-->
+                
+<script>/*                
+                <div class="rightLineBlock">
+                
+                    <div class="contractInput input48" id="my_email">
+                        <h3>דוא"ל:</h3>
+                        <input id="my_emailInput" name="my_email" class="newInput newInputP" onChange="done(this); emailAC()" type="text" value="<?=$myParty["email"]?>" readonly />
+                        <img src="img/iAgree_alert.png">
+                    </div><!--my_email-->
+                    
+                    <div class="contractInput input48" id="idImage">
+                        <h3>צילום ת"ז:</h3>
+                        <img id="idImg" src="img/iAgree_id.png" onClick="idImgClick()">                    
+                        <input class="newInput newInputM" type="file" id="file" name="my_id_img" multiple accept='image/*' value="" />
+                        <img id="idImgAlert" src="img/iAgree_alert.png">
+                        <img id="idImgSuccess" src="img/iAgree_ok.png">
+                        <div id="miniImg">
+                        
+                        	<?php
+								$imageSrc = getScannedIdImageSrc($myParty["scanned_id"]);
+								if($imageSrc != null) {
+							?>
+									<input type="hidden" name="party_id_scan_exists" value="true">
+									<img id="idScan" src="<?=isset($imageSrc) ? $imageSrc : '' ?>" />
+							
+							<?php
+								}
+							?>
+                        
+                        </div><!--miniImg-->
+                    </div><!--my_id_image-->
+                                        
+                </div><!--rightLineBlock#3-->
+                
+*/</script>                
+               	<input type="hidden" name="allDetailsDone" value="1">
+				
+
+            
+            </form>
+            
+            <a onClick="review()">אשר</a>
+        
+        </div><!--popupBox-->
+    
+    </div><!--popupBlock-->
+
+</div><!--popupContainer-->
+
+<section id="section1">
+
+	<?php include 'nav.php';?>
+
+</section>
+
+<section id="section2">
+
+	<div class="wrapper" id="contractWrapper">
+    
+    	    	<?php include 'contract_body.php';?>
+        
+        
+<!---------------------------------------------------------------
+							Signature
+---------------------------------------------------------------->        
+
+
+    <div class="m-signature-pad" id="snapshot">
+        <div class="camcontent">
+        
+        	<h1>רגע לפני שחותמים! אנחנו רוצים לוודא שזה באמת אתה...</h1>
+                
+            <video id="video" autoplay width="320" height="240"></video>
+            
+            <canvas id="canvas" width="320" height="240"></canvas>
+            
+ 		
+        </div><!--camcontent-->
+        
+       
+        <div class="cambuttons">
+            <button class="button" id="snap">  שמור תמונה </button> 
+            <button class="button" id="reset">  תמונה חדשה  </button>     
+            <button class="button" id="upload" onClick="$('#snapshot').hide(); $('#signature-pad').show()"> אשר </button> 
+            
+<!--            <div class="loadingText">
+                <p id=uploading style="display:none;"> שומר תמונה . . .  </p> 
+                <p id=uploaded  style="display:none;"> התמונה נשמרה בהצלחה! 
+                    <a href="javascript:history.go(-1)"> חזור </a> </p> 
+         
+            </div><!--loadingText-->
+             
+         </div><!--cambuttons-->
+         
+    </div><!--snapshot-->
+    
+    
+    
+    
+<script>
+// Put event listeners into place
+window.addEventListener("DOMContentLoaded", function() {
+	// Grab elements, create settings, etc.
+	var canvas = document.getElementById("canvas"),
+		context = canvas.getContext("2d"),
+		video = document.getElementById("video"),
+		videoObj = { "video": true },
+		image_format= "jpeg",
+		jpeg_quality= 85,
+		errBack = function(error) {
+			console.log("Video capture error: ", error.code);};
+			
+	var snapResult = document.getElementById("snapResult"),
+		context2 = snapResult.getContext("2d"),
+		video2 = document.getElementById("video"),
+		videoObj2 = { "video": true },
+		image_format2= "jpeg",
+		jpeg_quality2= 85;
+			
+
+
+
+// Put video listeners into place
+if(navigator.getUserMedia) { // Standard
+	navigator.getUserMedia(videoObj, function(stream) {
+		video.src = stream;
+		video.play();
+		$("#snap").show();
+	}, errBack);
+} else if(navigator.webkitGetUserMedia) { // WebKit-prefixed
+	navigator.webkitGetUserMedia(videoObj, function(stream){
+		video.src = window.webkitURL.createObjectURL(stream);
+		video.play();
+		$("#snap").show();
+	}, errBack);
+} else if(navigator.mozGetUserMedia) { // moz-prefixed
+	navigator.mozGetUserMedia(videoObj, function(stream){
+		video.src = window.URL.createObjectURL(stream);
+		video.play();
+		$("#snap").show();
+	}, errBack);
+}
+		  // video.play();       these 2 lines must be repeated above 3 times
+		  // $("#snap").show();  rather than here once, to keep "capture" hidden
+		  //                     until after the webcam has been activated.  
+
+	// Get-Save Snapshot - image 
+document.getElementById("snap").addEventListener("click", function() {
+	context.drawImage(video,0,0,320,240);
+	context2.drawImage(video,0,0,320,240);
+	
+	$('.resutls').hide();
+	
+
+//	var zz = document.getElementById('canvas').height;
+	
+//	alert(zz);
+	
+	// the fade only works on firefox?
+	$("#video").fadeOut("fast", function(){
+		$("#canvas").fadeIn("fast");
+		});
+	
+	$("#snap").hide();
+	$("#reset").css('display','inline-block');
+	$("#upload").css('display','inline-block');
+});
+
+// reset - clear - to Capture New Photo
+document.getElementById("reset").addEventListener("click", function() {
+	$("#canvas").hide("fast", function(){
+		$("#video").show();
+		});
+	$("#snap").show();
+	$("#reset").hide();
+	$("#upload").hide();
+});
+
+// Upload image to sever 
+document.getElementById("upload").addEventListener("click", function(){
+	var dataUrl = canvas.toDataURL("image/jpeg", 0.85);
+	$("#uploading").show();
+	$.ajax({
+	  type: "POST",
+	  url: "html5-webcam-save.php",
+	  data: { 
+		 imgBase64: dataUrl,
+		 user: "Joe",       
+		 userid: 25          
+	  }
+	}).done(function(msg) {
+	  console.log("saved");
+	  $("#uploading").hide();
+	  $("#uploaded").show();
+	});
+});
+}, false);
+
+</script>
+
+    
+    
+    <div class="m-signature-pad" id="signature-pad">
+    	<h1>חתימה</h1>
+        <div class="m-signature-pad--body">
+          <canvas id="myCanvas"></canvas>
+        </div>
+        <div class="m-signature-pad--footer">
+          
+        <p onClick="getCanvas()">אשר</p>
+          
+        </div>
+    </div> 
+    
+    <form id="frmSnapshot" method="post" enctype="multipart/form-data">
+		<input type="hidden" name="my_snapshot">
+        <input type="hidden" name="my_signature">
+        <input type="hidden" name="my_ip">
+        <input type="hidden" name="my_device_name">
+        <input type="hidden" name="signature_date">
+        
+                
+    </form> 
+
+
+  <script src="example/js/signature_pad.js"></script>
+  <script src="example/js/app.js"></script>	
+        
+
+<!---------------------------------------------------------------
+							Approve/Edit
+---------------------------------------------------------------->
+            
+        <div class="approve" id="approve">
+
+            <p class="contractButton" id="remarks"><a onClick="sendComments()">שלח הערות ליוצר החוזה</a></p>
+           
+            <p class="contractButton" id="logedIn"><a onClick="completeDetails()">השלם פרטים</a></p>
+            
+            <p class="contractButton" id="sign"><a onClick="showSigPad()">חתום!</a></p>
+            
+			       
+            
+			
+        </div><!--approve-->
+        
+        
+        <canvas class="resutls" id="snapResult" width="320" height="240"></canvas>
+        
+        <div class="resutls" id="imgResult"></div>
+        
+        <div class="resutls" id="ipAddress"><h3>IP Address: </h3><p><?="$ip"?></p></div>
+        
+        <div class="resutls"><h3>Device Name: </h3><p id="deviceName"></p></div>
+        
+        <div class="resutls"><h3>Date: </h3><p id="signTime"></p></div>
+ 
+ 
+ 
+        
+        
+<!---------------------------------------------------------------
+							Appendix A - Images
+---------------------------------------------------------------->
+        
+        
+        <div class="contractPage" id="images">
+        
+            <h1>נספח א' – צילומי תעודות זהות ותמונת חתימה</h1>
+            
+            <h2>השוכרים</h2>
+            
+            <div class="tenantsImages">
+            
+            	<?php
+					$i = 1;
+					foreach($contract['tenant'] as $tenant) {
+						$tenantUser = getUserByEmail($tenant['email']);
+				?>
+                <div class="tenant" id="tenant<?=$i?>2">
+
+                    <h3 class="llLeft"> <span><?=($tenantUser['first_name'] . " " . $tenantUser['last_name'])?></span> </h3>
+                    
+                    <div class="imagesTable">
+                    
+                <? 	
+					
+					if($tenantUser['scanned_id']){
+						
+				?>
+                    
+                    	<div class="scanned_id">
+                        
+                        	<img src="tempImg/<?=$tenantUser['scanned_id']?>">
+                        
+                        <div><!--scanned_id-->
+                        
+				<?
+					}
+					
+                    if($tenant['snapshot']){ 
+				?>
+					   
+                        <div class="snapshot">
+                        
+                        	<img src="tempImg/<?=$tenant['snapshot']?>">
+                            
+                        <div><!--snapshot-->
+                        
+				<?
+					}
+				?>
+                    
+                    </div><!--imagesTable-->
+                        
+                    
+                </div><!--tenant<?=$i?>-->
+				<?php
+						$i++;
+					}
+				?>
+            
+            </div><!---->
+            
+            
+            
+            <h2>המשכיר</h2>
+            
+            <div class="tenantsImages">
+            
+                <div class="tenant">
+
+                    <h3 class="llLeft"> <span><?=($contract['landlord'][0]['first_name'] . " " . $contract['landlord'][0]['last_name'])?></span> </h3>
+                    
+                    <div class="imagesTable">
+                    
+                <? 	
+				
+					$landlordUser = getUserByEmail($contract['landlord'][0]['email']);
+					
+					if($landlordUser['scanned_id']){
+						
+				?>
+                    
+                    	<div class="scanned_id">
+                        
+                        	<img src="tempImg/<?=$landlordUser['scanned_id']?>">
+                        
+                        <div><!--scanned_id-->
+                        
+				<?
+					}
+					
+                    if($contract['landlord'][0]['snapshot']){ 
+				?>
+					   
+                        <div class="snapshot">
+                        
+                        	<img src="tempImg/<?=$contract['landlord'][0]['snapshot']?>">
+                            
+                        <div><!--snapshot-->
+                        
+				<?
+					}
+				?>
+                    
+                    </div><!--imagesTable-->
+                        
+                    
+                </div><!--tenant-->
+				
+            
+            </div><!---->
+            
+               
+       
+        </div><!--contractPage-->        
+        
+        
+        
+        
+    </div><!--wrapper-->
+    
+    
+
+
+
+</section><!--section2-->
+
+<section id="section3">
+
+	<?php include 'footer.php';?>
+    
+</section>
+
+
+
+<script>
+/*
+function getCanvas(){
+	
+	fSnapshot = document.getElementById('frmSnapshot');
+	
+	fSnapshot.my_snapshot.value = "";
+	fSnapshot.my_signature.value = "";
+	fSnapshot.my_ip.value = <?=$ip?>;
+	fSnapshot.my_device_name.value = WURFL.complete_device_name;
+	fSnapshot.signature_date.value = new Date();
+	
+	
+			$('#signature').hide();
+			$('#signature-pad').hide();
+			$('.approve').hide();
+			
+			var my_canvas = document.getElementById('myCanvas');
+			
+//			my_canvas.width = 200;
+//			my_canvas.height = 100;
+//			drawScreen();
+			
+			
+			var myImg = new Image();
+			myImg.id = "pic"
+			
+//			var ctx = my_canvas.getContext("2d");
+//			ctx.fillStyle = "#92B901";
+//			ctx.fillRect(50, 50, 100, 100);
+
+			myImg.src = my_canvas.toDataURL();
+			document.getElementById('imgResult').appendChild(myImg);
+			
+			alert(myImg);
+			
+			$('.resutls').show();
+//			signTime();
+			$('#imgResult img').css('width','300px');
+			
+//			setTimeout(function(){window.location.href = "sign_contract.php?rid=<?=$rid?>&signed=1";},2000);
+			
+}
+
+function signSuccess(){
+
+	$('.popupContainer').css('display','table');
+	$('.popupBox').hide();
+	$('#signSuccess').fadeIn();
+
+}
+	
+	
+
+/*****************************************************************
+*    					General variables    					 *
+*****************************************************************/
+
+	var h = $(window).height();
+	var frm = document.getElementById("frm");
+	var mql = window.matchMedia("screen and (min-width:769px)");
+	
+
+/*****************************************************************
+*    					Font size function    					 *
+*****************************************************************/
+	
+function fontSize(){
+	
+	var w = $(window).width();
+	var a = w/160;
+	var b = h/77;
+	if (w<1200){
+	//	$('.container').css('max-width','100%');
+		}
+	if (w/h > 2){$('body').css('font-size',a+'px');}
+	else		{$('body').css('font-size',b+'px');}
+}
+	
+
+/*****************************************************************
+*    							user	    					 *
+*****************************************************************/
+
+
+function user(){
+//	alert();
+	if ("<?=isset($user)?>"){
+//	if (0){
+		$('#userLogin').hide();
+		$('#userLogout').show();
+		$('#userLogout').css('display','table-cell');
+		
+		if("<?=isset($user['gplus_url']) ?>"){
+			$('.gplus').show();
+			}
+		
+		} else {
+			$('#userLogin').show();
+			$('#userLogin').css('display','table-cell');
+			$('#userLogout').hide();
+			loginUser();
+			}
+}
+
+
+/*****************************************************************
+*    					Ready functions	    					 *
+*****************************************************************/
+	
+$(document).ready(function() {
+//	alert("1");	
+
+	$('.m-signature-pad').hide();
+	
+//	$('#snapshot').show();
+	$('.resutls').hide();
+	
+	
+	
+	fontSize();
+	user();
+	$('#idImg').show();
+	$('#miniImg img').show();
+
+	whichButton();
+	
+//	start();
+	
+//	if ('<?=$myParty['signed']?>' ==1){
+//		signSuccess();}
+
+})
+
+
+/*****************************************************************
+*  						Cobtract Completion			  			 *
+*****************************************************************/
+
+$('.xbox').click(function(){
+	$('.popupContainer').hide();	
+})
+
+function loginUser(){
+	$('.popupContainer').css('display','table');
+	$('.popupBox').hide();
+	$('#popupBoxView1').fadeIn();}
+
+function sendComments(){
+	$('.popupContainer').css('display','table');
+	$('.popupBox').hide();
+	$('#popupBoxComments').fadeIn();}
+
+function completeDetails(){
+	$('.popupContainer').css('display','table');
+	$('.popupBox').hide();
+	$('#popupBoxView2').fadeIn();}
+	
+function whichButton(){
+	
+	$('.contractButton').hide();
+	
+//	if (<?=$myParty['phone']?> != NULL){
+	if ('<?=$myParty['phone']?>' != ""){
+		
+		$('#sign').show();
+	}else {
+		$('#logedIn').show();
+		$('#remarks').show();
+	}
+}
+	
+
+function showSigPad(){
+
+	$('#signature').fadeIn();
+	$('#signature-pad').css('opacity','1');
+	$('#snapshot').fadeIn();
+	
+}
+	
+
+
+function review(){
+	
+//	alert(<?=$imageSrc?>);
+		
+	var a=0;
+	$('.contractInput img').css('display','none');
+	$('#idImg').show();
+/*	
+	if (frm.my_id_img.value == "") {
+		if("<?=$imageSrc?>" == ""){
+//		if (1){
+			frm.file.focus();
+			$('#idImgAlert').fadeIn();
+			a=1;
+		}
+	}else{$('#idImgSuccess').fadeIn();}
+		
+	
+	if (!ValidateEmail(frm.my_email.value)) {
+		frm.my_email.focus();
+		$(frm.my_email).removeClass('selected');
+		frm.my_email.value = ""
+		$('#my_email img').fadeIn();
+		a=1;}
+*/	
+	if (frm.my_address.value.length == 0) {
+		frm.my_address.focus();
+		$('#my_address img').fadeIn();
+		a=1;}
+	
+	if (frm.my_phone.value.length == 0) {
+		frm.my_phone.focus();
+		$('#my_phone img').fadeIn();
+		a=1;}
+/*		
+	if (frm.my_identity_number.value.length != 9) {
+		frm.my_identity_number.focus();
+		$('#my_identity_number img').fadeIn();
+		a=1;}
+		
+	if (frm.my_last_name.value.length == 0) {
+		frm.my_last_name.focus();
+		$('#my_last_name img').fadeIn();
+		a=1;}
+		
+	if (frm.my_first_name.value.length == 0) {
+		frm.my_first_name.focus();
+		$('#my_first_name img').fadeIn();
+		a=1;}
+*/		
+	if (a==1) {reutrn(0);}
+	
+	frm.submit(); }
+	
+	
+function sendCommentsToOwner(frm){
+	var a=0;
+	$('.contractInput img').css('display','none');
+		
+	if (frm.comments.value.length == 0) {
+		frm.comments.focus();
+		$('#comments img').fadeIn();
+		a=1;}
+		
+	if (a==1) {reutrn(0);}
+	
+	frm.submit();}
+	
+	
+function start(){
+//	done(document.getElementById('my_first_nameInput'));
+//	done(document.getElementById('my_last_nameInput'));
+//	doneID(document.getElementById('my_identity_numberInput'));
+/*	done(document.getElementById('my_phoneInput'));
+	done(document.getElementById('my_addressInput'));
+	done(document.getElementById('my_emailInput'));
+	done(document.getElementById('landlord_emailInput'));
+	done(document.getElementById('tenant1_emailInput'));
+	done(document.getElementById('tenant2_emailInput'));
+	done(document.getElementById('tenant3_emailInput'));
+*/}
+
+function idImgClick(){
+	$('#file').click();
+	//alert(frm.my_id_img.value);
+	if(frm.my_id_img.value != ""){
+		$('#idImgAlert').hide();
+		$('#idImgSuccess').fadeIn();}	 
+		
+	//alert(frm.my_id_img.value);
+		
+}
+	
+
+function done(z){
+	if (z.value != ""){
+		$(z).addClass('selected');
+		$(z).closest('.contractInput').children('img').hide();
+		$('.xxx').show();}
+	else{
+		$(z).removeClass('selected')}	
+}
+
+function doneID(z){
+	if (z.value.length == 9){
+		$(z).addClass('selected');
+		$(z).closest('.contractInput').children('img').hide();}
+		
+	else{
+		$(z).removeClass('selected');
+		z.value = ""
+//		$(z).closest('.cRinline').children('img').show();
+	}
+}
+
+function ValidateEmail(x) {
+	var a=0;
+	var atpos=x.indexOf("@");
+	var dotpos=x.lastIndexOf(".");
+	if (x.length==0) {
+		a=1;}
+		else if (atpos<1 || dotpos<atpos+2 || dotpos+2>=x.length) {
+			 a=1;}
+	if (a==1) {return false;}
+
+return 1; }
+
+
+
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-65350205-1', 'auto');
+  ga('send', 'pageview');
+  
+
+
+</script>
+
+
+</body>
+</html>

@@ -1,0 +1,2542 @@
+@font-face {
+  font-family: 'Open Sans Hebrew';
+  src: url('fonts/opensanshebrew-light-webfont.eot'); /* IE9 Compat Modes */
+  src: url('fonts/opensanshebrew-light-webfont.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
+       url('fonts/opensanshebrew-light-webfont.woff') format('woff'), /* Modern Browsers */
+       url('fonts/opensanshebrew-light-webfont.ttf')  format('truetype'), /* Safari, Android, iOS */
+       url('fonts/opensanshebrew-light-webfont.svg#1e3cbe1d61c0f2b766b8aff35f09f556') format('svg'); /* Legacy iOS */
+       
+  font-style:   normal;
+  font-weight:  200;}
+
+BODY, HTML{
+	width:100%;
+	height:100%;
+	margin:0;
+	padding:0;
+	overflow:hidden;
+	font-size:10px;
+	font-family:'Open Sans Hebrew',Arial, Helvetica, sans-serif;
+	direction:rtl;}
+	
+section{
+	width:100%;}
+
+	
+#section1{
+//	background-color:rgba(0,255,255,1);
+	border-bottom:1px solid rgba(0,0,0,0.1);
+	height:6%;
+//	margin-bottom:1%;
+	overflow:hidden;
+//	position:relative;
+	display:table;}
+	
+#section2{
+//	background-color: rgba(0,153,255,1);
+	height:86%;
+//	margin-top:0.5%;
+	padding-top:1%;
+	overflow-y: hidden;
+	display:block;}
+	
+	#section2 > *{
+		vertical-align: bottom;}
+	
+#section3{
+	background-color:rgba(141,165,197,1);
+	height:6%;
+	overflow:hidden;}
+	
+	
+/*****************************************************************
+*    						Nav Bar		    					 *
+*****************************************************************/
+
+.navBar{
+//	background-color:rgba(0,255,255,1);
+	width:100%;
+//	max-width:102em;
+	height:100%;
+	margin:0 auto;
+	display:table;}
+		
+	.navCell{
+		width:auto;
+		height:100%;
+		text-align:right;
+		vertical-align: middle;
+		display:table-cell;}
+		
+	#logo{
+		height:100%;}
+	
+		#logo img{
+			height:80%;
+			max-height:2.2em;}
+		
+	#blank{width: auto;}
+	
+	#userLogin, #userLogout{
+		width:auto;
+		vertical-align:middle;
+		text-align:left;
+		display:none;}	
+		
+		#userLogout img{
+			width:2.6em;
+			height:2.6em;
+			margin: 0 1%;
+			border-radius:2em;
+			vertical-align:middle;}
+			
+		#gplus{
+			display:none;}
+		
+	#newContract{
+		background-color:rgba(127,186,0,1);
+		padding:0.4em 2em;
+		border-radius:5px;
+		color:white;}
+		
+	#newContract:hover {
+				background-color:rgb(135, 198, 0);
+				text-decoration:underline;}
+			
+	.navCell a{
+		margin:0 1em;
+		font-size:1.5em;
+		color:rgba(0,175,240,1);
+		text-decoration: none;
+		cursor:pointer;}
+		
+	.navCell a:hover{color:rgba(0,102,204,1);}
+	
+	.personalArea{
+		background-color:white;
+		width:25%;
+		max-width:20em;
+		border:1px solid rgba(0,0,0,0.1);
+		border-top:none;
+		border-radius:0 0 5px 0;
+		left:0;
+//		top:6%;
+		position:absolute;
+		display:block;
+		display:none;}
+
+		.personalArea a{
+			margin:1em;
+			font-size:2em;
+			color:rgba(0,175,240,1);
+			text-decoration: none;
+			display:block}
+			
+		.personalArea a:hover{color:rgba(0,102,204,1);}
+			
+		
+	
+
+/*****************************************************************
+*    						FooterSmall	    					 *
+*****************************************************************/
+.footerSmall{
+//	background-color:rgba(0,255,204,1);
+	width:98%;
+	height:100%;
+	margin:0 auto;
+	padding:0 1%;
+	display:table;}
+	
+	.footCell{
+		vertical-align:middle;
+		display:table-cell;}
+		
+		.footerSmall h2{
+//			background-color:rgba(255,255,0,1);
+			color:white;		
+			font-size:2em;
+			font-weight:normal;
+			width:20%;}
+			
+		#smallLinks{
+//			background-color:rgba(255,204,0,1);
+			width:60%;}
+			
+			.linksTable{
+				width:100%;
+				display:table;}
+			
+				#smallLinks a{
+					border-left:1px solid rgba(255, 255,255 ,0.3);
+					width:25%;
+					color:white;
+					text-decoration:none;
+					font-size:2em;
+					text-align:center;
+					display: table-cell;}
+					
+				#smallLinks a:last-of-type{
+					border-left:none;}
+			
+		#smallMedia{
+//			background-color:rgba(255,153,0,1);
+			width:20%;
+			vertical-align:middle;}
+			
+			.mediaTable{
+				width:100%;
+				direction: ltr;
+				display:table;}
+				
+				.mediaTable p{
+					vertical-align:bottom;
+					display:table-cell;}
+				
+				
+/*****************************************************************
+*    						Wrapper	    					 *
+*****************************************************************/
+.blank{
+	height:2%;
+	width:100%;
+	display:none;}
+	
+.wrapper{
+//	background-color:rgba(0,255,0,1);
+	width:100%;
+	max-width:102em;
+	height:99.9%;
+	margin:0 auto;
+	padding:0;
+//	font-size: 0;
+	display: block;}
+
+/*****************************************************************
+*    						Right Column    					 *
+*****************************************************************/
+	
+	.right{
+//		background-color:rgba(204,153,102,1);
+		width:69.8%;
+		height:100%;
+		margin:0;
+		padding: 0;
+		border-left:1px solid rgba(0,175,240,0.3);
+//		text-align:center;
+//		overflow-y:auto;
+		vertical-align:top;
+		position:relative;
+		display: inline-block}
+
+/*****************************************************************
+*    							Dots	    					 *
+*****************************************************************/
+		
+		.dots{
+//			background-color:rgba(0,255,0,1);
+			width:24.8em;
+			height:5%;
+			margin:0 auto;
+			overflow:hidden;
+			top:0;
+//			vertical-align:top;
+			display:table;}
+			
+			.dot{
+				width: auto;
+				text-align:center;
+				vertical-align:middle;
+				display:table-cell}
+			
+				.dot p{
+	//				background-color:rgba(0,175,240,1);
+					border:1px solid rgba(0,175,240,1);
+	//				border:1px solid white;
+					border-radius:100%;
+					width:0.8em;
+					height:0.8em;
+					margin:0;
+					padding:0;
+					cursor:pointer;}
+					
+				#h_line p{
+					width:3.2em;
+					height:1px;
+					padding:0;
+					margin:0;			
+					border:none;
+					border-bottom:1px solid rgba(0,175,240,1);
+	//				border-bottom:1px solid white; 
+					border-radius:0;
+					vertical-align:bottom;
+					display:table-cell;}
+					
+				#dotFull p{
+					background-color:rgba(0,175,240,1);
+	//				background-color:white;}
+			
+			
+			
+/*****************************************************************
+*    						Contract	    					 *
+*****************************************************************/
+			
+		.contract{
+//			background-color: rgba(0,204,0,1);
+			width:100%;
+			height:88% !important;
+			max-height:88% !important;
+			overflow-y: auto;}
+			
+			.contract h1{
+				margin-top:0;
+				margin-bottom:0.1em;
+				font-size:3em;
+				font-weight:normal;
+				text-align:center;}
+			
+		.buttons{
+//			background-color: rgba(255,153,0,1);
+			width:100%;
+			height:7% !important;
+			overflow:hidden;
+			display:table}
+				
+			.prev, .next{
+				background-image:url(img/iAgree_arrow_right.png);
+				background-repeat:no-repeat;
+				background-size: auto 100%;
+				background-position:right;
+				width:50%;
+				padding-right:4em;
+				vertical-align:middle;
+				display:table-cell;}
+				
+			.next{
+				background-image:url(img/iAgree_arrow_left.png);
+				background-repeat:no-repeat;
+				background-size: auto 100%;
+				background-position:left;
+				padding:0 0 0 5em;
+				text-align:left;}
+				
+				.next a, .prev a{
+					color:white;
+					font-size:2em;
+					text-decoration:none;
+					cursor:pointer;}
+					
+				.buttons a:hover{
+					text-decoration:underline;}
+					
+			#nextFinish{
+				background-color:rgba(133,194,38,1);
+				padding:0;
+				text-align:center;}
+		
+/*****************************************************************
+*    						Left Column	    					 *
+*****************************************************************/		
+		
+	.left{
+//		background-color:rgba(100,50,0,1);
+		background-image:url(img/building_kite.png);
+		background-repeat:no-repeat;
+		background-size:contain;
+		background-position:bottom;
+		width:30%;
+		height:100%;
+		margin:0;
+		padding: 0;
+		color:white;
+		display: inline-block}
+		
+		
+		.notes, .helpText{
+			background-color:white;
+			border:1px solid rgba(0,175,240,0.7);
+			-ms-border-radius:1em;
+			-webkit-border-radius:1em;
+			-o-border-radius:1em;
+			-moz-border-radius:1em;
+			border-radius:1em;
+			margin:2%;
+			padding:1% 4%;
+			color:rgba(0,175,240,1);}
+			
+			.notes h2{
+				font-size: 2em;
+			// font-weight:bold;}
+			
+			.notes h3{
+				margin-bottom:1%;
+				font-size: 1.8em;
+			 font-weight:bold;}
+			
+			.notes p, .helpText p {
+				margin:1% 0;
+				font-size: 1.8em;
+			// font-weight:bold;}
+				
+		.helpText{
+			background-color: rgba(255,0,0,0.7);
+			margin-top:10%;
+			border:none;
+			-ms-transition:0.5s ease-in-out;
+			-o-transition:0.5s ease-in-out;
+			-webkit-transition:0.5s ease-in-out;
+			-moz-transition:0.5s ease-in-out;
+			transition:0.5s ease-in-out;
+			opacity:0;}
+			
+			.helpText p{
+				color:white;}
+		
+
+/*****************************************************************
+*    					Contract Inputs	    					 *
+*****************************************************************/
+
+.rightLineBlock{
+	margin-bottom:2%;
+	padding-right:2%;
+	display:block}
+	
+	.rightLineBlock > *{
+		vertical-align:top;}
+	
+	.contractInput{
+		width:32%;
+		display:inline-block;}
+		
+		.rightLineBlock h3{
+			margin-bottom:0;
+			font-size:2em;
+			font-weight:normal;}
+			
+		.contractInput input{
+			width:80%;}
+			
+		.contractInput .newInput, .login .newInput{
+				background-color:rgba(141,165,197,0.2);
+				border:none;
+				box-shadow:none;
+				height:3em;
+				padding:0 0.5em 0 0;
+				font-family: 'Open Sans Hebrew', Arial, sans-serif;
+				font-size:2em;
+				border-radius:0.2em;
+				display:inline-block;}
+			
+		.rightLineBlock img{
+			width:10%;
+			max-width:1.8em; 
+			display:none;}
+			
+/*****************************************************************
+*    				Contract start Exceptions	    			 *
+*****************************************************************/
+#startPage{
+	text-align:center;}
+
+	.unSelected{
+		width:5em;
+		margin:10% 5%;
+		padding:1em 2em;
+		border:1px solid rgba(0,175,240,0.5);
+		-ms-border-radius:1em;
+		-webkit-border-radius:1em;
+		-o-border-radius:1em;
+		-moz-border-radius:1em;
+		border-radius:1em;
+		font-size:2em;
+		font-weight:bold;
+		text-align:center;
+		cursor:pointer;
+		display:inline-block}
+		
+	.unSelected span{
+		font-size:0.9em;
+		font-weight:normal;}
+
+/*****************************************************************
+*    				Contract page#2 Exceptions	    			 *
+*****************************************************************/
+
+.appliances{
+		display:block;}
+		
+	#home .appliances{
+		width:98%;}
+		
+	#home h3{
+		margin-bottom:2%;}
+		
+		.appliances img{
+			width:5em;
+			max-width:5em;
+			-webkit-filter: grayscale(100%);
+			filter: grayscale(100%);
+			cursor:pointer;
+			display: inline-block;}
+			
+		.appliancesColor{
+			width:5em;
+			cursor:pointer;
+			display: inline-block;
+			-webkit-filter:none;
+			filter:none;}
+			
+		.appliances img:hover{
+			-ms-transition:0.3s ease-in-out;
+			-o-transition:0.3s ease-in-out;
+			-webkit-transition:0.3s ease-in-out;
+			transition:0.3s ease-in-out;
+			transition:0.3s ease-in-out;
+			-webkit-filter:none;
+			filter:none;}
+
+	.homeApp{
+//		background-color:rgba(0,255,153,1);
+		margin:2% 0;
+		width:49%;
+		display:inline-table;}
+		
+		.homeApp p{
+			font-size:1.6em;
+			width:25%;
+			display:table-cell;}
+			
+		.homeApp input{
+			font-family: 'Open Sans Hebrew', Arial, sans-serif;
+			font-size:1.4em;
+			width:75%;
+			display:table-cell;}
+			
+	#furniture{
+		margin-bottom:0;}
+		
+	#faults1{
+		margin-bottom:3%;}
+
+
+/*****************************************************************
+*    				Contract page#3 Exceptions	    			 *
+*****************************************************************/
+	
+	#animals{
+//		background-color:rgba(0,153,255,1);
+		width:50%}
+		
+	#animals > *{
+		vertical-align:top;}
+	
+		#animals h3{
+			display:inline-block;}
+		
+		#animals img{
+			width:7em;
+			max-width:10em;
+			vertical-align: text-top;
+			display:inline-block;}
+		
+		.animals{
+			width:10em;
+			margin-right:2%;
+			-webkit-filter: grayscale(100%);
+			filter: grayscale(100%);
+			cursor:pointer;}
+			
+		.animalsColor{
+			-webkit-filter:none;
+			filter: none;}
+	
+	.textInput{
+		width:80%;}
+		
+		.textInput textarea{
+			width:90%;
+			color:black;
+			resize:none;}
+			
+		.textInput .newInput{
+			height:5em;}
+		
+		
+
+
+			
+/*****************************************************************
+*    				Contract page#4 Exceptions	    			 *
+*****************************************************************/
+
+#payment{
+	width:48%}
+	
+	#payment input{
+		width:25%}
+
+	#payment span{
+		font-size:2em;}
+
+#optional_extension{
+	width:30em;}
+
+	#optional_extension select{
+		width:3em;}
+	
+	#optional_extension span{
+		font-size:2em;}
+		
+		#fill{
+			font-size:1em;}
+		
+	#optional_extension img{
+		display:none;}
+		
+		#collaterals{
+			width:98%;
+//			max-width:60em;}
+		
+		#collaterals > *{
+			vertical-align:top;}	
+		
+		
+	#secContainer{
+//		background-color:rgba(0,255,153,1);
+		width:100%;
+//		max-width:50em;
+		display:block;}
+		
+	#secContainer > *{
+		vertical-align:top;}
+
+		
+		.sec{
+			width:41%;
+			height:20em;
+			margin:2%;
+			padding:0 0.5em;
+			border:1px solid rgba(0,175,240,0.5);
+			-ms-border-radius:0.5em 0.5em 0 0;
+			-moz-border-radius:0.5em 0.5em 0 0;
+			-o-border-radius:0.5em 0.5em 0 0;
+			-webkit-border-radius:0.5em 0.5em 0 0;
+			border-radius:0.5em 0.5em 0 0;
+			text-align:center;
+			cursor:pointer;
+//			vertical-align:middle;
+			display: inline-block;}
+			
+		.secSelected{
+			background-color:rgba(0,175,240,0.5);
+			color:white;}
+			
+			.sec p{
+	//			margin:0;
+				padding:0;
+				font-size:2em;
+				font-weight:bold;}
+			
+			.secText{
+//				background-color:rgba(0,204,204,1);
+				width:96%;
+				padding:0 2%;
+//				color:white;
+				font-size:1.8em !important;
+				font-weight:normal !important;}	
+				
+				
+	/*****************************************************************
+*							Leumi Card						     *
+*****************************************************************/
+
+#leumiCard p{
+	margin:1% 0;
+	font-size:1.6em;}
+		
+.cardDate{
+//	background-color:rgba(0,255,102,1);
+	width:auto;
+	display:inline-block;}
+		
+#card_digits{
+//	background-color:rgba(0,204,255,1);
+	width:45%;}
+	
+	#card_digits input{
+		width:25%;}
+		
+		
+#leumiCardLogo{
+//	background-color:rgba(51,51,153,1);
+	background-image:url(imgLeumiCard/LeumiCardLogo.png);
+	background-repeat:no-repeat;
+	background-position:center bottom;
+	background-size:auto 70%;
+	width:45%;
+	height:10em;
+	display: inline-table;}
+	
+	#leumiCardLogo h3{
+		text-align:left}
+		
+		
+		
+#insuranceOption{
+	text-align:center;}
+	
+	.insuranceOption{
+//		background-color:green;}
+	
+	.ioContainer{
+		width:90%;
+		height:50em;
+		margin:0 auto;
+		cursor:pointer;}
+		
+		.ioContainer p{
+			width:90%;
+			margin:0 5%;
+//			font-weight:bold;
+			border-bottom:1px solid white !important;}		
+		
+	
+		.insuranceOption .ioTitle{
+//			background-color:silver;
+//			width:96%;
+			padding:5% 2% 0 2%;
+//			height:10em;
+			border-radius:5px 5px 0 0;
+			display:block;}
+			
+			.insuranceOption .ioTitle h3{
+				margin:2% auto !important;
+				padding-top:5%;
+				font-weight: bold;}
+				
+			.insuranceOption .ioTitle p{
+//				margin:0;
+				padding-bottom:5%;
+				font-size:2em;
+				font-weight: bold;}
+			
+		.insuranceOption .ioBox{
+//			background-color:rgba(0,255,204,1);
+//			width:80%;
+			height:18em;
+			margin:2% auto;
+//			padding:0 10%;
+			font-size:1.8em;
+			border-radius:0 0 5px 5px;
+			display:table;}
+			
+			.insuranceOption .ioBox p{
+//				background-color:green;
+				width:86%;
+//				height:15%;
+				margin:0 7% !important;
+				padding: 7% 0;}
+				
+				.insuranceOption .ioBox p:last-of-type{
+					border:none !important;}
+			
+		#io1{
+			background-image: url(imgLeumiCard/silver_bg.jpg);
+			background-size:100% 100%;}
+		
+		#io2{
+			background-image: url(imgLeumiCard/gold_bg.jpg);
+			background-size:100% 100%;}
+			
+		#io3{
+			background-image:url(imgLeumiCard/platinum_bg.jpg);
+			background-size:100% 100%;}
+			
+			
+			
+			
+			
+#load_id{
+//	background-color:rgba(0,153,255,1);
+	width:80%;
+	height:3em !important;
+	margin:3% 10%;
+//	border-radius:1em;
+//	box-shadow:1px 1px 3px rgba(0,0,0,0.4);
+	cursor:pointer;
+	display: inline-table}
+	
+	.load_id, .loaded_id{
+		background-color:rgba(0,175,240,0.7);
+		width:100%;
+		height: auto;
+		margin:0 !important;
+		padding:0 !important;
+		border-radius:0.5em;
+		color:white;
+		font-size:2.4em;
+		text-align:center;
+		vertical-align:middle;
+		display:table-cell;}
+		
+	.load_id:hover, .loaded_id:hover{
+//			background-color:rgb(135, 198, 0);}
+			
+	#load_id p{ margin:2%;}
+		
+			
+
+/*****************************************************************
+*    				Contract page#5 Exceptions	    			 *
+*****************************************************************/
+
+		.input48{
+			width:49%;}
+			
+		#my_email{
+//			width:58%;}
+			
+		#landlord_email, #tenant1_email{
+//			width:58%;
+			border-top:1px solid rgba(0,175,240,0.2);}
+			
+		#tenant2_email, #tenant3_email{
+//			width:100%;
+			display:block;}
+			
+			#landlord_email h3, #tenantEmail1 h3{
+				margin-top:3%;}
+				
+			#tenant2_email, #tenant3_email{
+				margin-top:1%;}
+				
+			#tenant_email p{
+				font-size:1.8em;} 
+					
+				#plusTenant{
+					font-size:2em;
+					cursor:pointer;}
+				
+					#plusTenant img{width:0.5em;}
+					
+				#plus{
+					width:1.2em;
+					vertical-align:text-bottom;}
+				
+				
+
+/*****************************************************************
+*    						review_contract	 	    			 *
+*****************************************************************/
+
+#contractWrapper{
+//	background-color:rgba(0,255,204,1);
+	font-size:1.2em;
+	overflow-y:auto;}
+	
+	#contractWrapper h1{
+		font-size:2.4em;
+		font-weight:normal;
+		text-align:center;}
+		
+	#contractWrapper h3{
+		background-color:rgba(51,153,255,0.2);
+		width:92%;
+		margin: 0.5em auto;
+		padding:0.2em 2%;
+		font-size:1.6em;
+		text-align:right;}
+		
+	#contractWrapper p{
+		font-size:1.6em;}	
+		
+	#contractWrapper span{
+		font-weight:bold;
+		padding:0;}
+		
+		.contractPage{
+			width:98%;
+			margin:0 1%;}
+		
+		#page1{
+//			background-color:rgba(204,102,0,1);
+			text-align:center;}
+					
+		.ll{
+	//		background-color:rgba(0,153,255,1);
+			width:96%;
+			max-width:25em;
+			margin:0 auto;
+			text-align:right;
+			display:table;}
+			
+			.ll .llRight{
+	//			background-color:rgba(204,153,0,1);
+				width:30%;
+				display:table-cell;}
+				
+			.ll .llLeft{
+	//			background-color:rgba(204,255,0,1);
+				width:70%;
+				padding-right:1%;
+				border-bottom:1px solid black;
+				display:table-cell;}
+				
+				
+		.landlordContainer{
+//			background-color:rgba(0,255,255,1);
+			width: auto;
+			height:30%;
+			max-height:15em;
+			margin:0 auto;
+			display:block;}
+			
+		.landlordContainer > * {
+			vertical-align:top;}
+			
+			.landlordBox{
+				width:30%;
+				height:100%;
+				text-align:center;
+				display: inline-block;}
+				
+				.landlordBox img{
+					width: auto !important;
+					max-width:15em;
+					height:100%;
+					max-height:10em !important;
+					margin:0 auto;
+					display:block;}	
+				
+				
+				
+				
+		.tenants{
+	//		background-color:rgba(0,255,255,1);
+			width:100%;
+			max-width:80em;
+			margin:0 auto;
+			display:table;}
+			
+			.tenant{
+				width:33%;
+				display:table-cell;}
+		
+		.contarctLine{
+//			background-color:rgba(153,153,153,0.5);
+			width:90%;
+			margin:0 5%;
+			display:table;}
+			
+			.contarctLine p{
+				margin: 0.5em auto;}
+			
+			.contarctLine .rightLine{
+				width:7%;
+				text-align:right;
+				display:table-cell;}
+				
+			.contarctLine .leftLine{
+				width:93%;
+				text-align: right;
+				display:table-cell;}
+				
+				.contarctLine p{
+					text-align: justify;}
+					
+					
+	#approve{
+//		background-color:rgba(0,255,102,1);
+		width:100%;
+		margin-top:7em;
+		margin-bottom:2%;
+		text-align:center;
+		display:block;}
+		
+		.approve > *{
+			vertical-align:top;}
+		
+		#approve p{
+			width:25%;
+			margin:0 10%;
+			font-size:1.8em;
+			display: inline-block}
+			
+		.approve #login, .approve #signed{//display:none;}
+			
+			.approve a{
+				text-decoration:none;}
+				
+			.approve a:hover{
+				text-decoration: underline;}
+			
+			.contractButton a, #remarks{
+				background-color:rgba(181,211,127,1);
+				width:20em;
+				height:4em;
+				padding:0 1%;
+				color:white;
+				border-radius:5px;
+				vertical-align:middle;
+				cursor:pointer;
+				display:table-cell;}
+				
+			#logedIn, #notLogedIn{
+				display:none;}
+				
+			#remarks, #remarks a{
+				background-color:rgba(66,146,207,1);}
+				
+	#guaranteeBill, #guaranteeSign{
+		text-align:center;
+		display:none;}
+
+		#guaranteeBill h1:first-of-type{
+			margin-top:10em;}
+	
+	.apendixes{
+		margin-top:5em;}
+		
+		.appendix{
+			width:25%;
+			margin-right:5%;
+			text-align:right;
+			cursor:pointer;}
+			
+			.appendix img{
+				margin-left:0.5em;
+				vertical-align:middle;}
+				
+				
+	#noOption1{
+//		background-color:rgba(51,255,153,1);}
+				
+	
+					
+	.horizontalSig{
+//		background-color:rgba(153,153,153,0.5);
+		width:90%;
+		margin:4% 5%;
+		display:table;}
+		
+	#HSlower{
+		border-top:1px solid black;}
+		
+		.horizontalSig p{
+			width:25%;
+			text-align:center;
+			display:table-cell;}
+			
+			
+.remarks{
+	background-color:rgba(0,0,0,0.7);
+	width:100%;
+	height:100%;
+	top:0;
+	position:fixed;
+	display:block;}
+	
+	.remarks form{
+		background-color:white;
+		width:50%;
+		height:60%;
+		margin:10% 25% auto auto;
+		font-size:2em;
+		text-align:center;}
+		
+		#remarksForm h3{
+			padding-top:1em;}
+			
+		#remarksForm textarea{
+			background-color:rgba(141,165,197,0.2);
+			border:none;
+			width:80%;
+			height:60%;
+			padding:2%;
+			font-size:1em;
+			resize:none;}
+			
+		#approveRemarks{
+			margin-top:2em;}
+			
+			#approveRemarks p{
+				width:25%;
+				margin:0 10%;
+				font-size:1em;}
+				
+			#approveRemarks #ok, #approveRemarks #remarks{
+				height:2em;}
+				
+			#approveRemarks #remarks{
+				background-color:rgba(66,146,207,1);}
+				
+/*****************************************************************
+*    						Content Page		    			 *
+*****************************************************************/
+
+#contentPage{
+//	background-color:red;
+	width:96%;
+	max-width:50em;
+	margin:0 auto;
+	padding:0 2%;
+	font-size:1.8em;
+	overflow-y:auto;
+	overflow-x: hidden;}
+	
+	#contentPage a{
+		color:black;
+		text-decoration: none;}
+		
+	#contentPage a:hover{
+		color: rgba(0,102,255,1);
+		text-decoration:underline;}
+
+
+/*****************************************************************
+*    					ContactUs Exceptions	    			 *
+*****************************************************************/
+	
+	#contactUs .right{
+//		background-color:rgba(204,153,102,1);
+		width:69.8%;
+		display: inline-block}
+	
+	#contactUs .left{
+		display:inline-block;}
+	
+		#mediaContact p{
+			font-size:2em;
+			color:white;
+			width:100%;}
+			
+		#mediaContact a{
+			color:white;
+			text-decoration:none;}
+			
+		#mediaContact a:hover{
+			text-decoration: underline;}
+		
+		#mediaContact img{
+			margin-left:4%;
+			vertical-align:middle;}
+		
+		
+.contactSubimt{
+//	background-color:rgba(51,153,255,1);
+	width:50%;
+	max-width:20em;
+	height:5em;
+	margin:0 auto;
+	direction:ltr;
+	text-align:center;
+	display:table;}
+	
+	.contactSubimt p{
+		background-color: rgba(127,186,0,1);
+		width:50%;
+		height:100%;
+		margin:0 auto;
+		border-radius:5px;
+		color:white;
+		font-size:2em;
+		font-weight:bold;
+		vertical-align:middle;
+		cursor:pointer;
+		display:table-cell;}
+		
+	.contactSubimt p:hover {
+		background-color:rgb(135, 198, 0);
+		text-decoration:underline;}
+
+
+/*****************************************************************
+*    					Thank You Exceptions	    			 *
+*****************************************************************/
+
+.gap10{
+	height:5%;
+	display:table;}
+
+.thankYou{
+	width:80%;
+	height:80%;
+	margin:0 auto;
+	border:1.4em solid rgba(0,176,240,1);
+	border-left:1.4em solid rgba(146,208,80,1);
+	border-bottom:1.4em solid rgba(146,208,80,1);
+	text-align:center;}
+	
+	.thankYou img{
+		width:50%;
+		max-width:10em;}
+		
+
+
+/*****************************************************************
+*    							FAQ		    					 *
+*****************************************************************/
+
+.freeP{
+	padding-right:3em;}
+	
+	
+
+/*****************************************************************
+*								Login						     *
+*****************************************************************/
+
+.loginBlock{
+	background-color:rgba(0,0,0,0.8);
+	width:100%;
+	height:100%;
+	position:absolute;
+	display:table;
+	display:none;}
+	
+	.loginInner{
+		width:100%;
+		height:100%;
+		vertical-align: middle;
+		display: table-cell;}
+		
+	
+#contentPage.loginBox{
+//	background-color:rgba(204,255,0,1) !important;
+	max-width:60em;}	
+	
+		.loginBox{
+//			background-color:blue;
+			width:100%;
+//			max-width:40em;
+			height:100%;
+			margin:0 auto;
+			padding:0 2%;
+			font-size:1.4em;
+			border-radius:5px;
+//			box-shadow:5px 5px 10px rgba(0,0,0,0.5);
+//			position:relative;
+			display:table;}
+			
+		.loginRight, .loginLeft{
+//			background-color:rgba(0,255,255,1);
+			width:43%;
+			padding:0 0 0 3%;
+			display:table-cell}
+			
+		.loginRight{
+//			background-color:rgba(0,255,204,1);
+			border-left:1px solid rgba(0,175,240,0.3);}
+			
+		.loginLeft{
+			width:46%;
+			padding:0 3% 0 3%;}	
+		
+			#loginClose{
+				top:1%;
+				left:1%;
+				position:absolute;
+				cursor:pointer;}
+				
+			
+			.loginBox h1, .loginBox h2{
+				margin:0;
+				font-weight:normal;
+//				text-align:center;}
+
+			.loginBox h2{
+				font-size:1.2em;}
+				
+			.loginBox img{ max-height:3em;}
+				
+			.loginBox .contractInput{
+				width:80%;
+				font-size:0.5em;}
+				
+			.loginBox .contactSubimt{
+				width:100%;
+				max-width:80%;
+				margin:5% 0 0 10%;
+				font-size:0.5em;
+				direction:rtl;}
+				
+			.loginLeft .contactSubimt{
+				width:30%;}
+				
+				.loginBox .contactSubimt p, .loginLeft .contactSubimt p{
+					width:35%;
+//					max-width:35% !important;
+					font-size:2.5em;
+					font-weight: normal;}
+		
+				.loginBox .contactSubimt a{
+					color:rgba(102,102,102,1);
+					text-decoration:none;
+					font-size:2.5em;
+					border-radius:5px;
+					vertical-align:middle;
+					display:table-cell;}
+					
+				.loginBox .contactSubimt a:hover{
+					color: rgba(0,51,255,1);
+					text-decoration: underline;}
+					
+			#googlePlus{
+//				background-color: rgba(0,255,204,1);
+				width:100%;
+				margin-top:10%;
+				text-align:center;}
+				
+				#googlePlus a{
+					margin:0 auto;
+					width:100%;}
+				
+				#googlePlus img{
+					margin:1% 0;
+					width: auto;
+					max-width:70%;
+					height:auto;
+					text-align:right;
+					display: block;}
+					
+					
+			.loginBox #email{
+				width:80%;}
+				
+	.loginFail,#registerFail{
+		margin-top:0;
+		color:red;
+		display:none;}
+		
+		#registerFail{
+			margin:0;
+			font-size:2em;}
+			
+.registerBlock{
+	background-color:rgba(0,0,0,0.8);
+	width:100%;
+	height:100%;
+	position:absolute;
+	display:table;
+	display:none;}
+	
+	.registerInner{
+		width:100%;
+		height:100%;
+		vertical-align: middle;
+		display: table-cell;}
+		
+		.registerBox{
+			background-color:white;
+			width:100%;
+			max-width:40em;
+			height:auto;
+			margin:0 auto;
+			padding:2%;
+			font-size:1.4em;
+			text-align:center;
+			border-radius:5px;
+			box-shadow:5px 5px 10px rgba(0,0,0,0.5);
+			position:relative;
+			display:table;
+			display:none;}
+	
+			.registerBox h2{
+				margin:0;}
+				
+			.registerBox a, #linkBox a{
+				background-color: rgba(127,186,0,1);
+				width:30%;
+				margin:3% auto;
+				padding:2%;
+				font-size:2em;
+				text-align:center;
+				color:white;
+				text-decoration:none;
+				-ms-border-radius:5px;
+				-o-border-radius:5px;
+				-webkit-border-radius:5px;
+				-moz-border-radius:5px;
+				border-radius:5px;
+				cursor:pointer;
+				display:block;}
+				
+					
+			.loginLeft .contractInput{
+				width:45%;
+				font-size:0.5em;}
+				
+				
+
+#recoveryForm{
+	font-size:0.6em;}
+	
+	#recoverySubmit{
+		width:20%;
+		max-width:10em;
+		margin-right:0;
+		border-radius:5px;}
+
+		#recoverFail{
+			font-size:2em ;}
+			
+	
+
+
+/*****************************************************************
+*						send_contract						     *
+*****************************************************************/
+
+.sendContract h3{
+	margin-bottom:0;
+	font-weight:normal;}
+	
+.sendContract p{
+	margin:0;
+	color:rgba(102,102,102,1);
+	font-size:1em;}
+	
+	#linkBox a{
+		padding:1% 0;
+		font-size:1.4em;}
+		
+	#linkBox a:hover{
+		color:white;
+		text-decoration:underline;}
+
+	
+	
+/*****************************************************************
+*						send_contract						     *
+*****************************************************************/
+
+.alert{display:none;}
+
+
+
+/*****************************************************************
+*						view_contract						     *
+*****************************************************************/
+
+.popupBox form{
+	width:100%;
+	margin:0 auto;
+	font-size:0.7em;
+	text-align:right;}
+	
+	.popupBox form textarea{
+	width:90%;}
+	
+	.popupBox #comments{
+//		background-color:rgba(0,255,255,1);
+		width:100%;
+		margin:0 auto;}
+		
+	#idImg{
+	//	background-color:rgba(0,255,255,1);
+		height:6em !important;
+		max-height:6em;
+		width:6em;
+		max-width:6em;
+		cursor:pointer;
+		display:none;}
+				
+					
+		#file{
+			display:none;}
+			
+	#idImage{
+//		background-color:rgba(0,204,204,1);}
+
+		
+		#miniImageTEst{
+			background-color: rgba(0,204,255,1);
+			height:11em;
+			display:inline-block;}
+			
+		#miniImg{
+//			background-color:rgba(204,102,0,1);
+			width:40%;
+			height:11em;
+			text-align:center;
+			display:inline-block !important;}
+			
+			#miniImg img{
+				width: auto;
+				max-width:100%;
+				height:100%;
+				max-height:100%;}
+				
+				
+	#terms{
+//		background-color:rgba(255,255,102,1);
+		width:100%;}
+		
+		#terms h3{
+			display: inline;}
+		
+		#terms input{
+			width: auto;}
+			
+		#terms label{
+			width: auto;}
+		
+		#termsLink{
+			background-color:transparent;
+			color:rgba(0,51,255,1);
+			text-decoration:underline;
+			font-size:1em;
+			display:inline}
+			
+	
+	
+	.contractPage h1{
+		margin-top:5em;}
+	
+	.contractPage h2{
+		font-size:2em;}
+	
+	.contractPage h3{
+		background-color:transparent !important;
+		font-weight:normal;}		
+					
+					
+					
+	.AppendixImages{
+		width:80%;
+		height:20%;
+		max-height:20em;
+		margin:0 auto;
+		display:block;}
+		
+		.AppendixImage{
+			width:40%;
+			height:100%;
+			display: inline-block;}
+			
+			.AppendixImage img{
+				width:100%;
+				height:100%;
+				max-height:20em;}
+			
+			
+			
+
+
+	.mySignature{
+		width:96%;
+		max-width:25em;
+		height:8em;
+		max-height:8em;
+		margin:0 auto;
+		padding:0;}	
+		
+		.mySignature img{
+			height:100%;
+			width:auto;}		
+				
+
+
+/*****************************************************************
+*								popup						     *
+*****************************************************************/
+
+.xbox{
+//	width:2em;
+//	max-width:2em;
+//	height:2em;
+//	max-height:2em;
+	position:absolute;
+	top:1%;
+	right:1%;
+	cursor:pointer;}
+	
+.popupContainer, .popupContainerSU{
+	background-color:rgba(0,0,0,0.8);
+	width:100%;
+	height:100%;
+	position:absolute;
+	display:table;
+	display:none;}
+	
+.popupContainerSU{
+	background-color:rgba(255,255,255,1);
+	display:table;}
+	
+	.popupBlock{
+//		background-color:blue;
+		width:100%;
+		height:100%;
+		vertical-align: middle;
+		display: table-cell;}
+		
+		.popupBox{
+			background-color:white;
+			width:100%;
+			max-width:40em;
+			height:auto;
+			margin:0 auto;
+			padding:2%;
+			font-size:1.4em;
+			text-align:center;
+			border-radius:5px;
+			box-shadow:5px 5px 10px rgba(0,0,0,0.5);
+			position:relative;
+			display:table;
+//			display:none;}
+	
+			.popupBox h2{
+				margin:0;}
+				
+			.popupBox img{
+				max-height:3em;}
+				
+			.popupBox a, #linkBox a{
+				background-color: rgba(127,186,0,1);
+				width:30%;
+				margin:3% auto;
+				padding:2%;
+				font-size:2em;
+				text-align:center;
+				color:white;
+				text-decoration:none;
+				-ms-border-radius:5px;
+				-o-border-radius:5px;
+				-webkit-border-radius:5px;
+				-moz-border-radius:5px;
+				border-radius:5px;
+				cursor:pointer;
+				display:block;}
+				
+
+/*****************************************************************
+*							Articles						     *
+*****************************************************************/
+	
+.article{
+	width:100%;
+	margin-bottom:5%;
+	padding:0 2% 0 0;
+	box-shadow:2px 2px 8px rgba(0,0,0,0.4);
+	display: table;}
+
+.articleContent{
+//	width:80%;
+//	overflow-y:auto !important;
+	display:block;}
+
+	.article img{
+		width:35%;
+		float:left;
+		padding:2%;}
+		
+	.articleContent img{
+		width:50%;
+		float:left;
+		padding:2%;}
+		
+	.article h2 a{
+		float:none;
+		color:rgba(0,153,255,1) !important;}
+		
+	
+	.article .linkToArticle{
+		float:left;
+		padding-left:2%;
+		color: rgba(0,102,255,1) !important;
+		text-decoration:none;}
+		
+	.article .linkToArticle{
+		text-decoration: underline;}
+		
+
+
+		
+/*****************************************************************
+*    							FAQ		    					 *
+*****************************************************************/
+
+.q h3{
+//	font-size:2em;
+	vertical-align: sub;
+	cursor:pointer}
+	
+.q p{
+	padding-right:2em;
+//	font-size:1.8em;
+	display:none;}
+	
+
+.q img{
+//	background-color:rgba(0,153,153,1);
+	width:1.4em;
+	height:1.4em !important;
+	vertical-align: bottom;
+	margin:0;
+	padding:0;
+	padding-left:1%;
+	float:none;
+	vertical-align:text-bottom;
+	display: inline;}
+
+
+	
+/*****************************************************************
+*							My Contracts					     *
+*****************************************************************/
+
+	.contractEntry{
+		border:2px solid rgba(0,0,0,0.6);}
+	
+	.myContractsTable{
+		width:100%;
+		height:4em;
+		font-size:0.9em;
+		text-align:center;
+		border-bottom:1px solid rgba(0,0,0,0.2);
+		display:table;}
+		
+	#myContractsTableHeader, #myContractsTableHeader2{
+		background-color:rgba(0,153,255,0.5) ;
+		height:2em;
+		font-size:1em;
+		font-weight:bold;}
+		
+	#myContractsTableHeader2{background-color: rgba(146,208,80,0.5);}
+		
+		.myContractsCell{
+//			background-color:green;
+			width: 30%;
+			height:100%;
+			vertical-align:middle;
+			border-left:1px solid rgba(0,0,0,0.2);
+			display:table-cell;}
+			
+		.myContractsCellSmall{
+			width:10%;}
+			
+		.myContractsCellParty{
+			width:20%;}
+			
+		.myContractsCellTiny{
+			font-size:0.7em;
+			width:5%;}	
+			
+			.myContractsTable p{
+				margin:1% 0;}
+				
+			.myContractsTable a{
+				border-left:1px solid rgba(0,0,0,0.3);
+				padding:0 2%;}
+				
+			.myContractsTable a:last-of-type{
+				border-left:none;
+				padding-left:0;}
+				
+				
+	#memoImg{display:none}
+	
+	#sendToHelloSignLink{
+		background-color:rgba(127,186,0,1);
+		padding:0.2em 0.5em;
+		border-radius:3px;
+		cursor:pointer;
+		color:white !important;}
+		
+	#sendToHelloSignLink:hover {
+		background-color:rgb(135, 198, 0);
+		text-decoration:underline;}
+		
+	#sentToHelloSign{
+		background-color:rgba(127,186,0,1);
+		padding:0.2em 0.5em;
+		border-radius:3px;
+		cursor:text;
+		color:white !important;}	
+		
+		
+		
+	
+	
+		
+		
+		
+.myContracts{
+	background-color:rgba(240,240,240,1);}
+	
+	#myContracts{
+		overflow-y:auto !important;}
+	
+	#myContracts h1{
+		width:100%;
+		max-width:100em;
+		font-size:3em;
+		text-align:center;
+		border-bottom:1px solid rgba(0,0,0,0.5); 
+	    line-height:1px;
+	   	margin: 1em 0 2em;}
+	   
+	   	#myContracts h1 span{
+			background-color:rgba(240,240,240,1);
+			padding:0 2em;}
+			
+	
+	.contractBox{
+		background-color:white;
+		width:94%;
+		max-width:100em;
+		margin:0 auto 5% auto;
+		display: table;}
+		
+		.firstRow, .secondRow{
+			width:100%;
+			display:table;}
+			
+			.firstRowCell, .secondRowCell{
+				width:40%;
+				padding:0 1%;
+				display:table-cell;}
+				
+			#contractImg{
+//				background-color: rgba(0,255,255,1);
+				width:10%;
+				position:relative;}
+				
+				#contractImg img{
+					width:100%; !important;
+					transform:rotate(-30deg);
+					position:absolute;
+					top:0;}				
+					
+				
+				.firstRowCell h3{
+					font-size:2.4em;}
+					
+					.firstRowCell h3 span{
+						font-size:0.7em;
+						font-weight:normal;}
+					
+					.firstRowCell h3 img{
+						height:1.5em;
+						padding-left:2%;
+						vertical-align: bottom;}
+						
+			#propertyLinks{
+				text-align:left;}
+				
+				#propertyLinks a{
+					border:1px solid rgba(0,175,240,1);
+					border-radius:0.2em;
+					margin:0 1%;
+					padding:0.2em 0.4em;
+					font-size:2em;
+					color:rgba(0,0,0,1);
+					text-decoration:none;
+					cursor:pointer;}
+					
+				#propertyLinks a:hover{
+					box-shadow:0 0 3px 2px rgba(51,153,255,0.4);}
+					
+					#propertyLinks a img{
+						width:1.2em;
+						padding-left:1%;
+						vertical-align: text-bottom;}
+						
+				#signContract{
+					background-color:rgba(127,186,0,1);
+					border:1px solid rgba(127,186,0,1) !important;
+					color:white !important;}
+					
+				#signContract:hover{
+					box-shadow:0 0 3px 2px rgba(135, 198, 0,0.4) !important;}						
+						
+			.contractBox p{
+				padding-right:2%;
+				font-size:2.2em;}
+				
+				.contractBox p img{
+					height:1.5em;
+					padding-left:1%;
+					vertical-align: bottom;}
+					
+
+
+		.secondRow{		
+			margin:2% 0;
+			padding-bottom:2%;}
+			
+			.secondRowCell{
+//				background-color:rgba(0,255,255,1);				
+				width:15%;
+				text-align:center;
+				vertical-align:middle;
+				display:table-cell;}
+				
+				.tenantName p{
+					background-color:rgba(0,175,240,0.5);
+					vertical-align:middle;
+					width:11em;
+					height:100%;
+					margin:0;
+					padding:1em 0.5em;
+					color:white;
+					font-size:2em;
+					font-weight:bold;
+					border-radius:0.2em;}
+				
+				.secondRowCell p{
+					margin:0 auto;
+					font-size:1.8em;}
+					
+				.secondRowCell input{
+					background-color:rgba(141,165,197,0.2);
+					border:none;
+					box-shadow:none;
+					height:3.4em;
+					padding:0 0.5em 0 0;
+					font-family: 'Open Sans Hebrew', Arial, sans-serif;
+					font-size:2em;
+					border-radius:0.2em;
+					display:inline-block;}
+					
+				.redInput{
+					border:1px solid red !important;
+					-ms-transition:0.3s ease-in-out;
+					-o-transition:0.3s ease-in-out;
+					-webkit-transition:0.3s ease-in-out;
+					-moz-transition:0.3s ease-in-out;
+					transition:0.3s ease-in-out;
+				}
+					
+/*
+					
+				.secondRowCell a{
+					border-radius:0.3em;
+					width:6em;
+					height:3em;
+					padding:0.5em 1em;
+					text-decoration:none;
+					font-size:1.8em;
+					text-align:center;
+					vertical-align:middle;
+					display: table-cell;}
+					
+				.secondRowCell .myContractsGrey{
+					background-color:rgba(204,204,204,1);}
+					
+				.secondRowCell .myContractsBlue{
+					background-color:rgba(0,175,240,1);
+					color:white;
+					font-weight:bold;
+					cursor:pointer;}
+					
+				.secondRowCell .myContractsGreen{
+					background-color:rgba(127,186,0,1);
+					color:white;
+					font-weight:bold;}
+					
+				 .secondRowCell .notExists{
+					 opacity:0.5;
+					 text-decoration:line-through;}
+*/					 
+					 
+
+.myContractStage{
+//	background-color:rgba(0,204,255,1);
+	width:6em !important;
+	text-align:center !important;}
+
+
+#tenantApprovalRequest{
+//	background-color:rgba(0,153,102,1);
+	padding:0;}
+
+.secondRowCell h3{
+	background-color:rgba(204,204,204,1);
+	width: auto;
+	max-width:2em;
+//	height:2em;
+	margin:0 auto;
+	padding:3px 0;
+	border-radius:100%;
+	color:white;
+	font-size:2em;
+	text-align:center;
+	vertical-align:middle;}
+	
+	.myContractFirstStage{
+//		background-color:rgba(0,255,153,1);
+		width:90% !important;
+		margin:0 auto;
+		padding:0;
+		text-align:center;}
+		
+					
+
+.secondRow{		
+	margin:2% 0;
+	padding-bottom:2%;}
+	
+	.secondRowCell{
+//		background-color:rgba(0,255,255,1);				
+		width:14%;
+		text-align:center;
+		vertical-align: bottom;
+		display: inline-table;}
+		
+		.pTitle{
+			font-weight:bold;
+			text-align:right;}
+			
+		.pAction{
+			background-color:rgba(127,186,0,1);
+			border-radius:0.5em;
+			box-shadow:2px 2px 6px rgba(0,0,0,0.4);
+			padding:2% 0;
+			color:white;
+			font-weight:bold;
+			cursor:pointer;}
+			
+		.pActionGrey{
+			background-color:rgba(204,204,204,1);
+			border-radius:0.5em;
+			box-shadow: none;}
+			
+			.pAction a{
+				color:white;
+				text-decoration:none;}
+				
+			
+		
+		
+		
+	.process{
+		width:55%;}
+		
+		.secondRowBlock p{
+			margin:0 auto;
+			font-size:1.8em;}
+			
+		.secondRowBlock input{
+			background-color:rgba(141,165,197,0.2);
+			border:none;
+			box-shadow:none;
+			height:3.4em;
+			padding:0 0.5em 0 0;
+			font-family: 'Open Sans Hebrew', Arial, sans-serif;
+			font-size:2em;
+			border-radius:0.2em;
+			display:inline-block;}
+
+
+					
+.progressNumbers, .progressText{
+//	background-color:rgba(0,255,204,1);
+	width:100%;
+	margin:0 auto;
+	text-align:center;
+	display:inline-table;}
+	
+.progressText{
+//	background-color:rgba(0,153,255,1);}					
+				
+	.numberCell{
+//		background-color:rgba(0,153,255,1);
+		width:5%;
+		vertical-align:middle;
+		display:table-cell;}
+		
+		.numberCell h3{
+			background-color:rgba(204,204,204,1);
+			border-radius:100%;
+			padding:8% 0;
+			color:white;
+			font-size:2em;
+			margin:0;}
+			
+		.ncGreen h3{
+			background-color:rgba(127,186,0,1);}
+			
+		.ncRed h3{
+			background-color: rgba(235,0,0,1);}
+			
+		.progressNumbers a{
+			color:white;
+			text-decoration:none;}
+			
+		
+	.spaceCell{
+//		background-color:rgba(0,204,255,1);
+//		border-bottom:1em solid rgba(204,204,204,1);
+//		padding-bottom:50%;
+		width:11%;
+		vertical-align:middle;
+		display:table-cell;}
+		
+	.spaceCellEdge{
+		width:6%;}
+		
+		.spaceCell hr{
+			background-color:rgba(204,204,204,1);
+			height:0.4em;
+			border:none;
+			box-shadow:none;}
+			
+		.scGreen hr{
+			background-color:rgba(127,186,0,1);}					
+					
+					
+	.progressTextCell{
+//		background-color:rgba(0,255,204,1);
+		width:19%;
+//		border-left:1px solid black;
+		vertical-align:middle;
+		text-align:center;
+		display:table-cell;}
+		
+		.progressTextCell p{
+			margin:0;
+			font-size:1.8em;}
+			
+		.progressTextCell a{
+			color:black;
+			text-decoration:none;}
+			
+			
+#newTenantRow{
+	display:none;}
+	
+	
+	.contractBox h2{
+		padding:0 1em 0 0;
+		font-size:2em;}
+		
+		.contractBox h2 img{
+			margin-left:0.5em;
+			vertical-align:middle;}
+			
+	.newTenant{
+		position:relative;}
+		
+		.newTenant p{
+			background-color: transparent;
+			margin:0;
+			color:rgba(255,0,0,1);
+			position:absolute;
+			top:90%;}
+		
+		
+		
+/*****************************************************************
+*								dashboard					     *
+*****************************************************************/		
+
+#dashboardPanel h1{
+	font-size:3em;
+	margin:1% 0;
+}
+
+.dashboardTenant{
+//	background-color:rgba(0,255,153,1);
+	height: 42%;
+	margin-bottom:4%;
+	position:relative;}
+	
+.dashboardTenant:last-of-type{
+	margin-bottom:0;}
+	
+	.dashboardTenant h2{
+		margin:0;
+		padding-right:5%;
+		text-align:right;
+		font-size:2em;
+		font-weight:normal;}
+		
+		.dashboardTenant h2 span{
+//			color: rgba(76,175,80,1);
+			font-weight:bold;}
+	
+
+.dashboard {
+//	background-color: rgba(0,255,255,1);
+	width: 100%;
+	max-width: 100em;
+	height: 45%;
+	margin:0 auto 1% auto;
+	text-align: center;
+	display: block;}
+		
+		
+	.secondRow{
+		height:30%;}
+			
+			
+
+	.dashboardCell {
+//		background-color: rgba(0,204,255,1);
+		width: 25%;
+		height: 100%;
+//		margin:0 0.5%;
+		vertical-align: bottom;
+		text-align:center;
+		position: relative;
+		display: inline-block;}
+		
+	.secondRow .dashboardCell{
+	width: 15%;}
+		
+		
+
+		.dashboardCell .upperCell{
+//			background-color:rgba(0,255,204,1);
+			width:100%;
+			height:60%;
+			display: table;}
+			
+			.dashboardCell .upperCell .upperCellTable{
+//				background-color:rgba(0,255,204,1);
+				width:100%;
+				height:100%;
+				text-align:center;
+				vertical-align: bottom;
+				position:relative;
+				display: table-cell;}
+				
+				.dashboardCell .upperCell .upperCellTable img{
+					width:90%;}
+					
+					.imgBlue{
+						display:none;}
+						
+					.imgLoading{
+//						background-color:rgba(153,255,51,1);
+						width:40% !important;
+						position:absolute;
+						right:30%;
+						top:30%;}
+						
+						.loadingUpper{
+							width:30% !important;}
+					
+					
+			
+			.dashboardCell .checkedMark{
+				width:2em;
+				display:none;}
+				
+			.dashboardCell p{
+				margin:0;
+				font-size:2em;
+				font-weight:bold;
+				text-align:center;
+				color:rgba(0,153,255,1);
+				display:none;}
+				
+			.upperCell .upperCellTable a{
+				text-align:right !important;
+				font-size:0.8em;
+				color: rgba(0,102,255,1) !important;
+				text-decoration:underline !important;
+				display:none;}
+				
+		.dashboardCell .lowerCell{
+//			background-color:rgba(0,100,204,1);
+			width:100%;
+			height:30%;
+			margin:0 auto;
+			color:rgba(102,102,102,1);
+//			font-size:0.8em;
+			text-align:center;
+			vertical-align:middle;
+//			border-top:1px solid rgba(102,102,102,0.5);}
+			
+			.dashboardCell .lowerCell h3{
+				font-size:1.5em;
+				margin:0;}
+
+
+		.dashboardCell canvas{
+//			 background-color:rgba(204,50,204,0.2);
+			 width:100% !important;
+			 height:50% !important;
+			 margin:0 !important;
+			 padding:0 !important;
+//			 position:absolute;
+			 top:0;
+			 z-index:-1;
+			 display: block;
+//			 display:none;}
+
+
+.mutualFriends{
+	background-color: rgba(255,255,255,1);
+	border:1px solid rgba(102,102,102,0.5);
+	box-shadow:1px 1px 4px rgba(0,0,0,0.3);
+	width:120%;
+	height: auto;
+	padding:0 5%;
+	text-align:right;
+	position:absolute;
+	top:0;
+	right:0;
+	z-index:10;
+	display:none;}
+	
+.mfOver{
+	background-color: transparent;
+	border:none;
+	box-shadow:none;
+	bottom:-25%;
+	right:0;
+	width:90%;
+	height:100%;
+	z-index:100;
+	display:block;}
+	
+	
+	.mutualFriends h2{
+		font-size:2em;
+		font-weight: bold;
+		text-align:center;}
+		
+		.mutualFriend{
+			margin:5% 0;
+			z-index:-10;}
+		
+		.mutualFriend > *{
+			vertical-align:middle;}
+		
+		.mutualFriend img{
+			width:2em !important;
+			display:inline-block;
+//			display:none;}
+			
+			.mutualFriend .socialMediaImg{
+				width:5em !important;
+				border-radius:100%;}
+				
+		.mutualFriends p{
+			color:rgba(102,102,102,1);
+			font-size:2em !important;
+			display:inline-block;}
+			
+
+
+			
+#stars{
+//	margin-top:20%;
+	display:none;}
+	
+	#stars .shade{
+		opacity:0.3;}
+		
+	#stars p{
+//		background-color:rgba(153,153,153,1);
+		font-size:1.6em;
+		margin-top:0;
+		margin-bottom:1%;}
+		
+
+#dashboardCell3 p, #dashboardCell11 p{
+	font-size:4em;}
+
+#dashboardCell8{
+//	background-color:rgba(0,153,204,1);
+	width:20%;
+//	height:20em;
+	}
+		
+#dashboardCell8 .upperCellTable{
+//	background-color:rgba(51,255,153,1);
+	height:7em;
+	text-align:right;
+	vertical-align: bottom !important}
+
+#dashboardCell8 .upperCellTable a{
+//	color: rgba(102,102,102,1) !important;
+//	text-decoration:none !important;
+	font-size:1.6em;
+	text-align:right;
+	}
+	
+#dashboardCell8 .upperCellTable a img{
+	width:1.2em !important;
+	}
+	
+#approveButton{
+	background-color: rgba(127,186,0,1);
+	width:auto;
+	padding: 0.4em 2em;
+	font-size:2em;
+	font-weight:bold;
+	border-radius: 5px;
+	color: white;
+	text-decoration:none;
+	position:absolute;
+	left:1%;}
+	
+#approveButton:hover {
+	background-color: rgb(135, 198, 0);
+	text-decoration: underline;}
+
+#rejectButton{
+	background-color: rgba(200,0,0,1);
+	width:auto;
+	padding: 0.4em 1em;
+	font-size:2em;
+	font-weight:bold;
+	border-radius: 5px;
+	color: white;
+	text-decoration:none;
+	position:absolute;
+	left:30%;}
+	
+#rejectButton:hover {
+	background-color: rgba(255,0,0,1);
+	text-decoration: underline;}
+
+
+#signature {
+	background-color: rgba(0,0,0,0.8);
+	width: 100%;
+	height: 100%;
+	position: absolute;
+	display: table;
+// z-index:900;
+	display: none;
+}
+#signature-pad {
+//	background-color:rgba(0,255,255,1);
+//	width:100%;
+//	height:100%;
+//	position:absolute;
+}
+
+#signature-pad p{
+	background-color: rgba(127,186,0,1);
+	width:10em;
+	margin:0 auto;
+	padding: 0.4em 2em;
+	font-size:2.4em;
+	font-weight:bold;
+	border-radius: 5px;
+	text-align:center;
+	color: white;
+	text-decoration:none;
+	cursor:pointer;}
+	
+
+	
+
+/*****************************************************************
+*								CamContent					     *
+*****************************************************************/
+
+.camcontent{
+//	background-color:rgba(0,204,255,1);
+	width:320px;
+	height:240px;
+	margin:0 auto;
+	display:block;}
+	
+	#video, #canvas{
+		width:320px;
+		height:240px;
+		margin:0 auto;
+		display:table;}
+		
+	#canvas{
+		display:none;}
+		
+.cambuttons{
+//	background-color:rgba(0,255,102,1);
+	width:100%;
+	height:10%;
+	margin-top:5%;
+	position:absolute;
+	bottom:0;
+	display:block;}
+	
+	.button{
+		background-color:rgba(0,175,240,1);
+		width:40%;
+		height:100%;
+		margin:0 30%;
+		border:none;
+		border-radius:0.2em;
+		color:white;
+		font-size:1.4em;
+		text-align:center;
+		cursor:pointer;
+		display:table;}
+		
+		.button p{
+			width:100%;
+			margin:0;
+			text-align:center;
+			vertical-align:middle;
+			display:table-cell;}
+	
+	#upload, #reset{
+		margin:0 4%;
+		display: none;}
+		
+	#upload{
+		background-color:rgba(127,186,0,1);}
+		
+	#upload:hover {
+				background-color:rgb(135, 198, 0);
+				text-decoration:underline;}
+				
+		.loadingText{
+			width:100%;
+			text-align:center;}
+
+
+#myCanvas{
+	background-color:rgba(180,180,180,0.4);
+}			
+			
+
+.resutls{
+	width:320px; 
+	margin:0 auto !important; 
+	text-align:center;
+	display:block;}
+	
+#snapResult{
+	margin-top:3% !important;}	
+
+/*****************************************************************
+*				General but Important to be in the End		     *
+*****************************************************************/
+
+.selected{
+	background-color:rgba(0,175,240,0.5) !important;
+	color:white !important;}			
+			
+			
+			
+.red{
+	border:1px solid rgba(204,51,0,1);
+	-ms-transition:1s ease-in-out;
+	-o-transition:1s ease-in-out;
+	-webkit-transition:1s ease-in-out;
+	-moz-transition:1s ease-in-out;
+	transition:1s ease-in-out;}
+	
+.pac-icon {
+  width: 0;
+  background-image: none;
+}
+
+.pac-item{
+	font-size:20px;
+	text-align:right;}
+	
+	
+
+
+

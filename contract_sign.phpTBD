@@ -1,0 +1,113 @@
+<?php
+
+	session_start();
+	
+	include_once("services.php");
+	include_once("global_defs.php");
+	include_once("contracts/services.php");
+	
+	date_default_timezone_set(WEBSITE_TIMEZONE);
+	
+	if(isset($_SESSION['user'])) {
+		$user = $_SESSION['user'];
+    } else {
+		header('Location: index.php');
+	}
+	
+	/* Fetch the contract according to its 'rid' */
+	if(isset($_POST['rid'])) {
+		$rid = basicParse($_POST['rid']);
+		$contractId = getContractIdByRandomId($rid);
+		$contract = getContractById($contractId);
+	}
+
+	/* Send the contract for signing only if it hadn't been already sent */
+	if(!empty($contract) && ($contract['hellosign_guid'] == null)) {
+				
+		/* Create a document file for the contract using a pre-made template */
+		$filepath = createDocxContract($contract);
+		
+		/* Submit the contract to HelloSign specifying all involved parties */
+
+		include_once("contracts/esignature_defs.php");
+		require_once 'contracts/hellosign/autoload.php';
+
+		$client = new HelloSign\Client(HELLOSIGN_CLIENT_ID);
+		$request = new HelloSign\SignatureRequest;
+		$request->enableTestMode();
+		$request->setTitle(HELLOSIGN_EMAIL_TITLE);
+		$request->setSubject(HELLOSIGN_EMAIL_SUBJECT);
+		$request->setMessage(HELLOSIGN_EMAIL_MESSAGE);
+		
+		$contractCreator = getContractCreator($contract['id']);
+
+		$partiesArray = getPartiesByContractId($contract['id']);
+		foreach($partiesArray as $party) {
+			$request->addSigner($party['email'], $party['first_name'] . " " . $party['last_name']);
+		}
+		
+		$request->addFile($filepath);
+		//$request->setUseTextTags(true);
+		//$request->setHideTextTags(true);
+		$response = $client->sendSignatureRequest($request);
+
+		$response_id = $response->getId();		
+		
+		if(isset($response_id)) {
+			
+			//Save HelloSign contract GUID into the database
+			setContractGuid($contract['id'], $response_id);
+			$contract['hellosign_guid'] = $response_id;
+		
+			//Go to a dedicated page: "Contract was sent to all parties for signing"
+			$contractWasSentMsg = "Contract was sent to all parties for signing.";
+			
+			header('Location: my_contracts.php');
+			
+		} else {
+			
+			$error[] = 'Couldn\'t publish to HelloSign successfully.';
+			
+		}
+		
+	} else {
+		
+		$error[] = 'Illegal inputs.';
+		
+	}
+
+?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<title>
+		iAgree
+	</title>
+</head>
+<body>
+
+	
+	
+	<?php
+	
+		if(!empty($error)) {
+			
+			echo "<h1>Error (500)</h1>";
+			echoOrderedList($error);
+			
+			/*
+			echo "<pre>";
+			var_dump($contract);
+			echo "</pre>";
+			*/
+			
+		} else {
+			
+			echo "<h1>Success!</h1><p>See file: $filepath</p>";
+			
+		}
+		
+	?>
+
+</body>
+</html>

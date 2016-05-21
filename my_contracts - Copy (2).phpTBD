@@ -1,0 +1,713 @@
+<?php
+    session_start();
+	
+    if(isset($_SESSION['user'])) {
+		$user = $_SESSION['user'];
+    } else {
+		header('Location: login.php?location=' . urlencode($_SERVER['REQUEST_URI']));
+	}
+	
+	include("services.php");
+	
+/*MY logics of progress bar and action button.
+	
+	
+	$contract = getContractById($contractId);
+	
+	if(isset($_GET['tenant1_email'])){
+		
+		$partiesArray[] = array ('email' => $_GET['tenant1_email'], 'role' => 'tenant');
+		$partiesEmails[] = $_GET['tenant1_email'];
+		
+		addParties($contract['id'], $partiesArray);
+		
+		$screeningRequestSent = sendTenantsScreeningRequest($user, $contract, $partiesEmails);
+	}
+	
+	$partiesArray[] = getPartiesByContractId($contractId);
+	
+	$tenantUser = getUserByEmail($partiesArray[tenant][0]['email']);
+	
+	
+	
+	
+	if(isset($_GET['agreed'])){
+	
+		$email = basicParse($_GET['tennantEmail']);
+		$contractId = basicParse($_GET['contractID']);
+		
+		 
+		
+		
+		if (!$tenant['submitted']){
+		
+			$creatorData = array (
+				'approved' => 1, 
+				'submitted' => 1
+			);
+			
+			sendContractToTenant($tenant, $contract);
+			
+		}
+		
+		$result = 0;
+		$result = updateParty($contractId, $email, $creatorData);
+		
+		if ($result){header("Location: my_contracts.php");}
+	
+	}
+	
+	
+	/* Send the contract to all parties */
+	if(isset($_POST['remind'], $_POST['rid'])) {
+
+		$rid = basicParse($_POST['rid']);
+		$contractId = getContractIdByRandomId($rid);
+		$contract = getContractById($contractId);
+
+		if(isset($user) && isset($contract)) {
+			$partiesArray = getPartiesByContractId($contract['id']);
+			
+			/* Prepare a list of emails of all recipients */
+			foreach($partiesArray as $party) {
+				$partiesEmails[] = $party['email'];
+			}
+			
+			/* Send the contract to all parties while identified as the logged-in user */
+			$reminderMailSent = sendContractToParties($user, $contract, $partiesEmails);
+		}
+		
+	}
+	
+?><!DOCTYPE html>
+<html>
+<head>
+<meta charset='UTF-8'>
+<meta name="viewport" content="width=device-width, user-scalable=1, initial-scale=1">
+<title>iAgree.co.il | החוזים שלי</title>
+<link href="style2.css" rel="stylesheet" type="text/css">
+<!-- Tablet -->
+<link href="mobile2.css" rel="stylesheet" type="text/css" media="only screen and (min-width:0px) and (max-width:768px)">
+<!-- Desktop -->
+<link href="style2.css" rel="stylesheet" type="text/css" media="only screen and (min-width:769px)">
+</head>
+
+<body oncontextmenu="return false;">
+
+<section id="section1">
+	
+	<?php include 'nav.php';?>
+
+</section><!--section1-->
+
+<section class="myContracts" id="section2">
+
+	<div class="wrapper" id="myContracts">
+    
+		<h1><span>החוזים שלי</span></h1>
+        
+        <?php
+		
+//			$j=1;
+			
+			/* Retrieve all contracts related to the logged-in user */
+			if($partiesArray = getPartiesByEmail($user['email'])) {
+				foreach ($partiesArray as $party) {
+					$contract = getContractById($party['contract_id']);
+					$thisContractPartiesArray = getPartiesByContractId($party['contract_id']);
+					
+					if($thisContractPartiesArray != null && $contract != null) {
+
+						/* Check if all parties have agreed on the contract */
+						$allPartiesAgreed = true;
+						foreach($thisContractPartiesArray as $p) {
+							$allPartiesAgreed = ($allPartiesAgreed & $p['agreed']);
+						}
+	
+						foreach($thisContractPartiesArray as $p) {
+							$contract[$p['role']][] = $p;
+						}
+
+						$contractSentToHelloSign = (!empty($contract['hellosign_guid']));
+						
+//MY					}
+					
+//MY				}
+				
+//MY			}
+						
+		?>
+        
+        
+        <div class="contractBox">
+        
+        	<div class="firstRow">
+            
+            	<div class="firstRowCell" id="propertyAddress">
+                
+                	<h3><img src="img/iAgree_homeGreen.png"><?=($contract['street'] . ' ' . $contract['building'] . " דירה " . $contract['apartment'] . ", " . $contract['city'])?><span> (<?= $contract['id']?>)</span></h3>
+                
+                </div><!--firstRowCell-->
+                
+                <div class="firstRowCell" id="contractImg">
+                
+                	<img src="img/iAgree_star<?=$contract['insurance_option']?>.png">
+                
+                </div><!--firstRowCell-->
+                
+                <div class="firstRowCell" id="propertyLinks">
+                
+                	<a href="view_contract.php?rid=<?=$contract['rid']?>"><img src="img/iAgree_view.png">צפה בחוזה</a>
+                
+				
+				<?php
+//MY					if(($party['can_edit'] == true) && ($contractSentToHelloSign == false)) {
+	
+				if($party['can_edit'] == true){
+				?>
+					<a href="edit_contract.php?rid=<?=$contract['rid']?>"><img src="img/iAgree_edit.png">ערוך</a>
+						
+						<?php if($allPartiesAgreed == false) { ?>
+						
+							<a id="sendMemo" onClick="sendMemo(<?=$contract['id']?>)"><img src="img/iAgree_alarm.png">שלח תזכורת</a>
+							<img id="memoImg" src="img/iAgree_ok.png">
+							<form id="memoForm<?=$contract['id']?>" method="post">
+								<input type="hidden" name="remind">
+								<input type="hidden" name="rid" value="<?=$contract['rid']?>">
+							</form>
+							
+						<?php } ?> 
+                        
+                        <?php //MY
+						
+						
+/*MY						else { ?>
+						
+							<a id="sendToHelloSignLink" onClick="sendToHelloSign(<?=$contract['id']?>)">שלח לחתימה</a>
+							<form id="signForm<?=$contract['id']?>" method="post" action="contract_sign.php">
+								<input type="hidden" name="sign">
+								<input type="hidden" name="rid" value="<?=$contract['rid']?>">
+							</form>
+							
+						<?php } ?>	MY*/ ?>
+				<?php
+					}
+				?>
+               
+                
+                </div><!--firstRowCell-->
+            
+            </div><!--firstRow-->
+            
+            
+            <p><img  src="img/iAgree_tenants.png">שוכרים</p>
+            
+            
+           <div class="secondRow">
+           
+           		<?php
+								
+						$i = 1;
+						foreach($contract['tenant'] as $tenant) {
+						
+						$name = "" ;
+						$email = "";
+						
+				?>
+            
+<!--            	<form id="myContracts1" action="my_contracts.php?rid=<?=$contract['rid']?>" method="post" enctype="multipart/form-data">	-->
+            	<form id="myContracts<?=$i?>" method="post" enctype="multipart/form-data">
+            
+            
+            	<div class="secondRowCell tenantName" id="ten<?=$i?>Email">
+                
+                
+                <?php	
+					
+					if(!empty($tenant['email'])) {
+						
+						$tenantUser = getUserByEmail($tenant['email']);
+						
+						if($tenantUser != NULL){
+							
+				?>
+							
+							<p><?=$tenant['first_name'] . " " . $tenant['last_name']?></p>
+                            
+                <?php
+                            
+                        }else{
+						
+				?>
+                
+                			<p><?=$tenant['email']?></p>
+                            
+                <?php	
+							
+						}
+						   					
+					}else{
+						
+				?>
+					
+						<p></p>
+				<?php
+					
+					}
+						
+				
+						
+						
+					
+					
+						
+						if(!empty($tenant['first_name'])) {
+							
+								
+								$name = $tenant['first_name'] . " " . $tenant['last_name'];
+								$email = $tenant['email'];
+								
+							
+							} else {	
+							
+								if (!empty($tenant['email'])) {
+									
+									$email = $tenant['email'];
+								
+								} 
+									
+							} 
+							
+						}
+							
+                    
+					if ($name != ""){ ?>
+                    
+                    	<p><?=$name?></p>
+                        
+                    <?php }else{
+					
+						if ($email != ""){ ?>
+						
+							<p><?=$email?></p>
+						
+						<?php } 
+					}
+					
+                 	if (empty ($contract['tenant'])){ ?>
+                      
+                    	<input id='tenent1Input' name="tenant1_email" type="text" placeholder='כתובת דוא"ל' onChange="$(this).removeClass('redInput');">
+					
+					<?php } ?>
+                
+                </div><!--secondRowCell-->
+                
+                
+                <div class="secondRowCell" id="nextAction">
+                
+                    <p class="pTitle">פעולה הבאה:</p>
+                    
+					 <?php 
+					 
+						if ($tenant['signed']==1){	?>
+							
+							<p class="pAction"><a href="sign_contract.php?rid=<?=$contract['rid']?>">חתום על<br>החוזה</a></p>
+                    
+                    
+                    	 <?php } else { if ($tenant['submitted']==1){	?>
+                                
+                                <p class="pAction pActionGrey">חתום על<br>החוזה</p>
+                                
+                                             
+                         <?php }else{
+                         
+                             if ($name != ""){ ?>
+                            
+        <!--                    	<p class="pAction"><a href="tenant_profiling.php?tennantName=<?=$name?>&tenantID=<?=$tenant['identity_number']?>">צפה בפרופיל<br>שוכר</a></p>	-->
+        
+                                    <p class="pAction"><a href="tenant_profiling.php?tennantEmail=<?=$tenant['email']?>&contractID=<?=$contract['id']?>">צפה בפרופיל<br>שוכר</a></p>
+                                
+                                
+                            <?php }else{
+                            
+                                if ($email != ""){ ?>
+                                
+                                    <p class="pAction pActionGrey">צפה בפרופיל<br>שוכר</p>
+                                
+                                <?php }	else { ?>    
+                            
+                                <p onClick="sendScreeningRequest('myContracts1')" class="pAction">שלח בקשה<br>ליצירת פרופיל</p>
+                            
+                            <?php } 
+                            
+                            }
+                            
+                         }
+						 
+					}?>
+                         
+                    
+                    
+                
+                </div><!--secondRowCell-->
+                
+                
+                
+                
+                <div class="secondRowCell process" id="">
+                
+                    <div class="progressNumbers">
+                    
+                        <div class="spaceCell spaceCellEdge"></div>
+                        
+						<?php
+                             if ($email != ""){ ?>
+                             	<div class="numberCell ncGreen" id="numberCell1"><h3>1</h3></div>
+                        		<div class="spaceCell scGreen" id="spaceCell1"><hr></div>
+                            
+                        <?php } else { ?>    
+                            
+                                <div class="numberCell" id="numberCell1"><h3>1</h3></div>
+                        		<div class="spaceCell" id="spaceCell1"><hr></div>
+                            
+                        <?php }
+						
+						
+                             if ($name != ""){ ?>
+                             
+                             	<div class="numberCell ncGreen" id="numberCell2"><h3>2</h3></div>
+                        		<div class="spaceCell scGreen" id="spaceCell2"><hr></div>
+                             
+                        <?php } else { ?> 
+                        
+                        
+                        	<div class="numberCell" id="numberCell2"><h3>2</h3></div>
+                        	<div class="spaceCell" id="spaceCell2"><hr></div>
+                        
+                        
+                        <?php } 
+						
+							if ($name != ""){ ?>
+                             
+                             	<div class="numberCell ncGreen" id="numberCell3"><h3>3</h3></div>
+                        		<div class="spaceCell scGreen" id="spaceCell3"><hr></div>
+                             
+							<?php } else { ?> 
+                            
+                            
+                                <div class="numberCell" id="numberCell3"><h3>3</h3></div>
+                                <div class="spaceCell" id="spaceCell3"><hr></div>
+                        
+						
+						<?php }
+						
+							if ($tenant['submitted'] ==1){	?>
+							
+								<div class="numberCell ncGreen" id="numberCell4"><h3>4</h3></div>
+                        		<div class="spaceCell scGreen" id="spaceCell4"><hr></div>	
+								
+						<?php }else { ?>
+						
+								<div class="numberCell" id="numberCell4"><h3>4</h3></div>
+                        		<div class="spaceCell" id="spaceCell4"><hr></div>
+						
+						<?php }
+						
+							if ($tenant['signed'] ==1){	?>
+							
+								<div class="numberCell ncGreen" id="numberCell5"><h3>5</h3></div>	
+								
+						<?php }else { ?>
+						
+								<div class="numberCell" id="numberCell5"><h3>5</h3></div>
+						
+						<?php } ?>
+                        
+                        		<div class="spaceCell spaceCellEdge"></div>
+                    
+                    </div><!--progressNumbers-->
+                    
+                    
+                    <div class="progressText">
+                    
+                        <div class="progressTextCell" id="progressTextCell1">
+                        
+                        	 <?php
+								 if ($email != ""){ ?>
+									<p>בקשה נשלחה</p>
+								
+								<?php } else { ?>    
+								
+									<p>שליחת בקשה</p>
+								
+							<?php } ?>
+                            
+                        </div><!--progressTextCell-->
+                        
+                        
+                        <div class="progressTextCell" id="progressTextCell2">
+                        
+                            <?php
+								
+								if ($name != ""){ ?>
+                                
+                                	<p>שוכר אישר</p>
+                                    
+                            <?php } else {							
+							
+								 if ($email != ""){ ?>
+									<p>ממתין לאישור<br>שוכר</p>
+								
+								<?php } else { ?>    
+								
+									<p>אישור שוכר</p>
+								
+							<?php } 
+							
+							}?>
+                            
+                        </div><!--progressTextCell-->
+                        
+                        
+                        <div class="progressTextCell" id="progressTextCell3">
+                        
+                            <?php
+								
+								if ($name != ""){ ?>
+                                
+                                	<p>פרופיל מוכן</p>
+                                    
+                            <?php } else {							
+							
+								 if ($email != ""){ ?>
+									<p>ממתין לבניית<br> פרופיל</p>
+								
+								<?php } else { ?>    
+								
+									<p>פרופיל שוכר</p>
+								
+							<?php } 
+							
+							}?>
+                            
+                        </div><!--progressTextCell-->
+                        
+                        
+                        <div class="progressTextCell" id="progressTextCell4">
+                        
+                        	<?php 
+						
+							if ($tenant['submitted'] ==1){	?>
+                            
+                            	<p>חוזה נשלח</p>
+                                
+                            <?php } else {
+								
+										if ($name != ""){ ?>
+										
+											<p>שלח חוזה</p>
+											
+									<?php } else {	?>
+										
+										<p>הפצת חוזה</p>
+										
+									<?php }
+									
+							} ?>
+                            
+                        </div><!--progressTextCell-->
+                        
+                        
+                        <div class="progressTextCell" id="progressTextCell5">
+                        
+                           <?php 
+						
+							if ($tenant['signed']==1){	?> 
+							
+                            	<p>חוזה נחתם</p>
+							
+							<?php } else { if ($tenant['submitted']==1){	?>
+                                
+                                    <p style="font-size:1.2em;">ממתין לחתימת<br>השוכר</p>
+                                    
+                                <?php } else {	?>
+                                
+                                    <p>חתימת חוזה</p>
+                                    
+                                <?php } 
+								
+							}?>
+                                
+                        </div><!--progressTextCell-->
+    
+                    
+                    </div><!--progressText-->
+                    
+                </div><!--secondRowCell-->                
+                
+                
+                </form>
+            
+            </div><!--secondRow-->
+            
+            <h2 style="padding:0 1em 3em 0"><img src="img/iAgree_plus.png"> הוסף שוכר</h2>
+
+        
+        </div><!--contractBox-->
+        
+        
+<?php
+	
+				}
+			}
+		}
+		
+		$j = $j+1;
+		
+	?>     
+            
+    
+		</div><!--wrapper-->
+
+</section><!--section2-->
+
+<section id="section3">
+
+	<?php include 'footer.php';?>
+
+</section><!--section3-->
+	
+
+<script type="text/javascript" src="js/jquery-2.1.0.min.js"></script>
+<script type="text/javascript" src="js/jquery-ui.min.js"></script>
+
+<script>
+
+
+
+/*****************************************************************
+*    					my_contract new logic    					 *
+*****************************************************************/
+
+				
+function sendScreeningRequest(x){
+	
+	var frm = document.getElementById(x);
+	
+	if(frm.tenant1_email.value==""){
+		
+		
+		
+		$('#tenent1Input').addClass('redInput');
+	
+	}else{
+			
+		$('#tenent1Input').removeClass('redInput');
+		frm.submit();
+	}
+}
+			
+function profiling(x,y,z){
+	
+	formP = document.getElementById('profilingForm');
+	formP.profilingName.value = y;
+	formP.profilingID.value = z;
+	
+	formP.submit();
+		
+}			
+
+
+
+
+
+/*****************************************************************
+*    					General variables    					 *
+*****************************************************************/
+
+	var h = $(window).height();
+	var j = 0;
+	var i = 0;
+	var mql = window.matchMedia("screen and (min-width:769px)");
+	
+
+/*****************************************************************
+*    					Font size function    					 *
+*****************************************************************/
+	
+function fontSize(){
+
+	var w = $(window).width();
+	var a = w/160;
+	var b = h/77;
+	if (w<1200){
+	//	$('.container').css('max-width','100%');
+		}
+	if (w/h > 2){$('body').css('font-size',a+'px');}
+	else		{$('body').css('font-size',b+'px');}
+}
+	
+
+/*****************************************************************
+*    							user	    					 *
+*****************************************************************/
+
+
+function user(){
+	if ("<?=isset($user)?>"){
+		$('#userLogin').hide();
+		$('#userLogout').show();
+		$('#userLogout').css('display','table-cell');
+		
+		if("<?=isset($user['gplus_url']) ?>"){
+			$('.gplus').show();
+			}
+		
+		} else {
+			$('#userLogin').show();
+			$('#userLogin').css('display','table-cell');
+			$('#userLogout').hide();
+			}
+}
+	
+
+/*****************************************************************
+*    					Ready functions	    					 *
+*****************************************************************/
+	
+$(document).ready(function() {
+	
+//	alert('<?=$result?>');
+	
+//	alert("<?=$tenantUser['first_name']?>");
+	
+	fontSize();
+	user();
+	
+	$('.noShow').hide();
+	
+//	$('.myContractsBlue').hide();
+	
+
+});
+
+function sendMemo(contract_id){
+	$('#memoForm' + contract_id).submit();
+}
+	
+function sendToHelloSign(contract_id){
+	$('#signForm' + contract_id).submit();
+}
+		
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-65350205-1', 'auto');
+ga('send', 'pageview');	
+	
+</script>
+	
+</body>
+</html>
