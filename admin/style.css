@@ -1,0 +1,29 @@
+body {
+	font-family: Calibri, Consolas, Tahoma;
+	padding: 2em;
+	background-color: whitesmoke;
+}
+
+/* unvisited link */
+a:link {
+    color: Blue;
+	text-decoration: underline;
+}
+
+/* visited link */
+a:visited {
+    color: Blue;
+	text-decoration: underline;
+}
+
+/* mouse over link */
+a:hover {
+    color: Magenta;
+	text-decoration: underline;
+}
+
+/* selected link */
+a:active {
+    color: Magenta;
+	text-decoration: none;
+}
